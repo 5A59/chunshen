@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:chunshen/excerpt/index.dart';
+import 'package:chunshen/ramble/index.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -12,14 +14,21 @@ class MainState extends State<MainPage> {
       length: 2,
       child: Column(
         children: [
-          TabBar(tabs: [
-            Tab(icon: Icon(Icons.backpack_rounded)),
-            Tab(icon: Icon(Icons.backpack_rounded)),
-          ]),
-          TabBarView(children: [
-            Tab(icon: Icon(Icons.backpack_rounded)),
-            Tab(icon: Icon(Icons.backpack_rounded)),
-          ])
+          TabBar(
+            isScrollable: true,
+            tabs: [
+              Tab(text: '书摘'),
+              Tab(text: '漫步'),
+            ],
+            indicator: BoxDecoration(),
+            labelColor: Colors.black,
+            unselectedLabelColor: Color(0x77777777),
+          ),
+          Expanded(
+              child: TabBarView(children: [
+                ExcerptPage(),
+                RamblePage()
+          ]))
         ],
       ),
     );
