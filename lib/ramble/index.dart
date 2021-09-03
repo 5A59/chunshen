@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class RamblePage extends StatefulWidget {
@@ -6,9 +5,12 @@ class RamblePage extends StatefulWidget {
   RambleState createState() => RambleState();
 }
 
-class RambleState extends State<RamblePage> {
+class RambleState extends State<RamblePage> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     return Text('ramble');
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

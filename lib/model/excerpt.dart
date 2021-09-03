@@ -1,11 +1,5 @@
-
-class TagBean {
-  String? image;
-  String? content;
-}
-
 class ExcerptListBean {
-  List<ExcerptBean> content = List.empty();
+  List<ExcerptBean> content = [];
 
   ExcerptListBean.fromJson(Map<String, dynamic> json) {
     this.content =
@@ -15,13 +9,13 @@ class ExcerptListBean {
 
 class ExcerptBean {
   ExcerptContentBean? excerptContent;
-  List<ExcerptCommentBean> comment = List.empty();
+  List<ExcerptCommentBean> comment = [];
 
   ExcerptBean.fromJson(Map<String, dynamic> json) {
     this.excerptContent = ExcerptContentBean.fromJson(json['content']);
     this.comment = (json['comment'] as List?)
         ?.map((e) => ExcerptCommentBean.fromJson(e))
-        .toList() ?? List.empty();
+        .toList() ?? [];
   }
 }
 
