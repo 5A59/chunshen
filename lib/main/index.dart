@@ -1,3 +1,4 @@
+import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/excerpt/index.dart';
 import 'package:chunshen/ramble/index.dart';
@@ -20,15 +21,12 @@ class MainState extends State<MainPage> {
               Tab(text: '书摘'),
               Tab(text: '漫步'),
             ],
-            indicator: BoxDecoration(),
+            indicatorSize: TabBarIndicatorSize.label,
+            indicatorColor: Colors.black,
             labelColor: Colors.black,
-            unselectedLabelColor: Color(0x77777777),
+            unselectedLabelColor: Color(CSColor.gray3),
           ),
-          Expanded(
-              child: TabBarView(children: [
-                ExcerptPage(),
-                RamblePage()
-          ]))
+          Expanded(child: TabBarView(children: [ExcerptPage(), RamblePage()]))
         ],
       ),
     );

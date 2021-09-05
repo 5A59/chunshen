@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:chunshen/model/tag.dart';
 
 import 'excerpt.dart';
@@ -35,5 +37,22 @@ class TagModel {
   static TagListBean getTagListBean() {
     Map<String, dynamic> data = _parseJson(TEST_TAG_DATA);
     return TagListBean.fromJson(data);
+  }
+}
+
+class RambleModel {
+  RambleModel._();
+
+  factory RambleModel.init() {
+    return RambleModel._();
+  }
+
+  static Map<String, dynamic> _parseJson(String data) {
+    return jsonDecode(data);
+  }
+
+  static List<ExcerptBean> getRambleData() {
+    ExcerptListBean tmp = ExcerptModel.getExcerptListBean(0);
+    return tmp.content;
   }
 }
