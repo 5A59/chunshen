@@ -1,3 +1,4 @@
+import 'package:chunshen/bar/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/excerpt/index.dart';
@@ -26,7 +27,15 @@ class MainState extends State<MainPage> {
             labelColor: Colors.black,
             unselectedLabelColor: Color(CSColor.gray3),
           ),
-          Expanded(child: TabBarView(children: [ExcerptPage(), RamblePage()]))
+          Expanded(child: TabBarView(children: [ExcerptPage(), RamblePage()])),
+          SizedBox(
+            height: 10,
+          ),
+          Divider(
+            height: 1,
+            thickness: 1,
+          ),
+          OperationBar()
         ],
       ),
     );

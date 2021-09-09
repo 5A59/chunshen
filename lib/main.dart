@@ -35,9 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       body: SafeArea(
-          child: Stack(
-        children: [MainPage(), Positioned(bottom: 10, child: OperationBar())],
-      )),
+        child: MainPage(),
+      ),
     );
   }
 }

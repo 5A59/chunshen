@@ -11,6 +11,7 @@ class RamblePage extends StatefulWidget {
 class RambleState extends State<RamblePage> with AutomaticKeepAliveClientMixin {
   List<Widget> pages = [];
   List<ExcerptBean> excerptData = [];
+  bool loading = false;
 
   @override
   void initState() {
@@ -18,15 +19,17 @@ class RambleState extends State<RamblePage> with AutomaticKeepAliveClientMixin {
     getRambleData();
   }
 
-  void getRambleData({int curPage = -1}) {
-    if (excerptData.isEmpty || curPage >= excerptData.length) {
-      Future.delayed(Duration(milliseconds: 500)).then((value) {
+  void getRambleData([int curPage = -1]) {
+    if (excerptData.isEmpty || curPage >= excerptData.length - 1) {
+      setState(() {
+        loading = true;
+      });
+      Future.delayed(Duration(milliseconds: 5000)).then((value) {
         List<ExcerptBean> tmp = RambleModel.getRambleData();
-        excerptData.addAll(tmp);
         setState(() {
-          tmp.forEach((element) {
-            pages.add(RambleContent(element));
-          });
+          loading = false;
+          excerptData.addAll(tmp);
+          pages = [...pages, ...tmp.map((e) => RambleContent(e)).toList()];
         });
       });
     }
@@ -35,18 +38,23 @@ class RambleState extends State<RamblePage> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return PageView(
-      scrollDirection: Axis.vertical,
-      controller: PageController(
-        initialPage: 0,
-        viewportFraction: 1,
-        keepPage: true,
-      ),
-      physics: BouncingScrollPhysics(),
-      onPageChanged: (index) {
-        //   getRambleData();
-      },
-      children: this.pages,
+    return Row(
+      children: [
+        Expanded(
+            child: PageView(
+          scrollDirection: Axis.vertical,
+          controller: PageController(
+            initialPage: 0,
+            viewportFraction: 1,
+            keepPage: true,
+          ),
+          physics: BouncingScrollPhysics(),
+          onPageChanged: (index) {
+            getRambleData(index);
+          },
+          children: this.pages,
+        )),
+      ],
     );
   }
 

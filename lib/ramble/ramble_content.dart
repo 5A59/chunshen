@@ -3,7 +3,7 @@ import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
 
 class RambleContent extends StatefulWidget {
-  ExcerptBean? bean;
+  final ExcerptBean? bean;
   RambleContent(this.bean);
 
   @override
