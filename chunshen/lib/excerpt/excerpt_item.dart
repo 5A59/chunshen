@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:chunshen/style/index.dart';
 
 class ExcerptCommentItem extends StatelessWidget {
-  List<ExcerptCommentBean> comment = [];
+  final List<ExcerptCommentBean>? comment;
 
   ExcerptCommentItem(this.comment);
 
   @override
   Widget build(BuildContext context) {
-    return comment.length > 0
+    return (comment?.length ?? 0) > 0
         ? Container(
-            margin: EdgeInsets.only(left: 60),
             padding: EdgeInsets.only(top: 10, bottom: 10),
             child: ListView.builder(
               shrinkWrap: true,
@@ -27,12 +26,12 @@ class ExcerptCommentItem extends StatelessWidget {
                             height: 15,
                             color: Color(CSColor.gray1),
                           ),
-                        Text(comment[i].content ?? ''),
+                        Text(comment?[i].content ?? ''),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              comment[i].time ?? '',
+                              comment?[i].time ?? '',
                               style: TextStyle(color: Color(CSColor.gray2)),
                             )
                           ],
@@ -40,7 +39,7 @@ class ExcerptCommentItem extends StatelessWidget {
                       ],
                     ));
               },
-              itemCount: comment.length,
+              itemCount: comment?.length ?? 0,
             ),
             decoration: BoxDecoration(color: Color(CSColor.gray)))
         : Container();
@@ -48,7 +47,7 @@ class ExcerptCommentItem extends StatelessWidget {
 }
 
 class ExcerptContentItem extends StatelessWidget {
-  ExcerptContentBean? bean;
+  final ExcerptContentBean? bean;
 
   ExcerptContentItem(this.bean);
 
@@ -83,7 +82,7 @@ class ExcerptContentItem extends StatelessWidget {
 }
 
 class ExcerptItem extends StatelessWidget {
-  ExcerptBean bean;
+  final ExcerptBean bean;
 
   ExcerptItem(this.bean);
 
@@ -108,7 +107,9 @@ class ExcerptItem extends StatelessWidget {
               ],
             ),
             SizedBox(height: 15),
-            ExcerptCommentItem(bean.comment)
+            Container(
+                padding: EdgeInsets.only(left: 60),
+                child: ExcerptCommentItem(bean.comment))
           ],
         ));
   }

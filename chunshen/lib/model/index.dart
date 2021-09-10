@@ -1,6 +1,5 @@
-import 'dart:math';
-
 import 'package:chunshen/model/tag.dart';
+import 'package:chunshen/net/index.dart';
 
 import 'excerpt.dart';
 import 'test.dart';
@@ -17,8 +16,10 @@ class ExcerptModel {
     return jsonDecode(data);
   }
 
-  static ExcerptListBean getExcerptListBean(int page) {
-    Map<String, dynamic> data = _parseJson(TESTDATA);
+  static Future<ExcerptListBean> getExcerptListBean(int page) async {
+    CSResponse resp = await httpGet('/excerpts', query: {"page": page});
+    // Map<String, dynamic> data = _parseJson(TESTDATA);
+    Map<String, dynamic> data = _parseJson(resp.data);
     return ExcerptListBean.fromJson(data);
   }
 }
@@ -51,8 +52,9 @@ class RambleModel {
     return jsonDecode(data);
   }
 
-  static List<ExcerptBean> getRambleData() {
-    ExcerptListBean tmp = ExcerptModel.getExcerptListBean(0);
-    return tmp.content;
+  static Future<List<ExcerptBean>> getRambleData() async {
+    CSResponse resp = await httpGet('/ramble');
+    Map<String, dynamic> data = _parseJson(resp.data);
+    return ExcerptListBean.fromJson(data).content;
   }
 }

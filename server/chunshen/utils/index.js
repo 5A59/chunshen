@@ -16,13 +16,6 @@ exports.getFailRes = (msg) => {
     }
 }
 
-exports.uuid = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-
 exports.versionCompare = (v1, v2) => { //v1比较新时返回1,v1和v2相同是返回0,v2比较新时返回-1;
     var arr1 = v1.toLowerCase().split('.');
     var arr2 = v2.toLowerCase().split('.');

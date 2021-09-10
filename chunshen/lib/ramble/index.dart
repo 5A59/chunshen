@@ -1,3 +1,4 @@
+import 'package:chunshen/base/widget/loading/index.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/ramble/ramble_content.dart';
@@ -5,13 +6,19 @@ import 'package:flutter/material.dart';
 
 class RamblePage extends StatefulWidget {
   @override
-  RambleState createState() => RambleState();
+  _RambleState createState() => _RambleState();
 }
 
-class RambleState extends State<RamblePage> with AutomaticKeepAliveClientMixin {
+class _RambleState extends State<RamblePage>
+    with AutomaticKeepAliveClientMixin {
   List<Widget> pages = [];
   List<ExcerptBean> excerptData = [];
   bool loading = false;
+  PageController _pageController = PageController(
+    initialPage: 0,
+    viewportFraction: 1,
+    keepPage: true,
+  );
 
   @override
   void initState() {
@@ -24,13 +31,16 @@ class RambleState extends State<RamblePage> with AutomaticKeepAliveClientMixin {
       setState(() {
         loading = true;
       });
-      Future.delayed(Duration(milliseconds: 5000)).then((value) {
-        List<ExcerptBean> tmp = RambleModel.getRambleData();
+      RambleModel.getRambleData().then((value) {
         setState(() {
           loading = false;
-          excerptData.addAll(tmp);
-          pages = [...pages, ...tmp.map((e) => RambleContent(e)).toList()];
+          excerptData.addAll(value);
+          pages = [...pages, ...value.map((e) => RambleContent(e)).toList()];
         });
+        if (curPage != -1 && curPage < excerptData.length - 1) {
+          _pageController.nextPage(
+              duration: Duration(milliseconds: 400), curve: Curves.easeOut);
+        }
       });
     }
   }
@@ -38,22 +48,25 @@ class RambleState extends State<RamblePage> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Row(
+    return Column(
       children: [
         Expanded(
             child: PageView(
           scrollDirection: Axis.vertical,
-          controller: PageController(
-            initialPage: 0,
-            viewportFraction: 1,
-            keepPage: true,
-          ),
+          controller: _pageController,
           physics: BouncingScrollPhysics(),
           onPageChanged: (index) {
             getRambleData(index);
           },
           children: this.pages,
         )),
+        loading
+            ? Container(
+                alignment: Alignment.center,
+                height: 50,
+                child:
+                    SizedBox(width: 50, height: 50, child: BallBounceLoading()))
+            : Container()
       ],
     );
   }
