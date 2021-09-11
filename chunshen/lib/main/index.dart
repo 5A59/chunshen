@@ -28,9 +28,6 @@ class MainState extends State<MainPage> {
             unselectedLabelColor: Color(CSColor.gray3),
           ),
           Expanded(child: TabBarView(children: [ExcerptPage(), RamblePage()])),
-          SizedBox(
-            height: 10,
-          ),
           Divider(
             height: 1,
             thickness: 1,

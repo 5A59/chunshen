@@ -16,8 +16,12 @@ class ExcerptModel {
     return jsonDecode(data);
   }
 
-  static Future<ExcerptListBean> getExcerptListBean(int page) async {
-    CSResponse resp = await httpGet('/excerpts', query: {"page": page});
+  static Future<ExcerptListBean> getExcerptListBean(
+      int page, Set<String>? tags) async {
+    CSResponse resp = await httpGet('/excerpts', query: {
+      "page": page,
+      "tags": jsonEncode(tags?.map((e) => e).toList() ?? [])
+    });
     // Map<String, dynamic> data = _parseJson(TESTDATA);
     Map<String, dynamic> data = _parseJson(resp.data);
     return ExcerptListBean.fromJson(data);
@@ -35,8 +39,9 @@ class TagModel {
     return jsonDecode(data);
   }
 
-  static TagListBean getTagListBean() {
-    Map<String, dynamic> data = _parseJson(TEST_TAG_DATA);
+  static Future<TagListBean> getTagListBean() async {
+    CSResponse resp = await httpGet('/tags');
+    Map<String, dynamic> data = _parseJson(resp.data);
     return TagListBean.fromJson(data);
   }
 }

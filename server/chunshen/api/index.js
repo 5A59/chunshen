@@ -3,8 +3,8 @@ const utils = require('../utils')
 const db = require('../db')
 
 exports.getExcerpts = (req, res, next) => {
-  const { page } = req.query
-  db.getExcerpts(page)
+  const { page, tags = '[]' } = req.query
+  db.getExcerpts(page, JSON.parse(tags))
     .then((excerpts) => {
       setTimeout(() => {
         res.send(utils.getSuccessRes({ data: excerpts }))
@@ -18,9 +18,7 @@ exports.getExcerpts = (req, res, next) => {
 exports.getRamble = (req, res, next) => {
   db.getRamble()
     .then((excerpts) => {
-      setTimeout(() => {
-        res.send(utils.getSuccessRes({ data: excerpts }))
-      }, 5000)
+      res.send(utils.getSuccessRes({ data: excerpts }))
     })
     .catch((err) => {
       next(utils.getFailRes(err))

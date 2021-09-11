@@ -2,8 +2,10 @@ class ExcerptListBean {
   List<ExcerptBean> content = [];
 
   ExcerptListBean.fromJson(Map<String, dynamic> json) {
-    this.content =
-        (json['data'] as List).map((e) => ExcerptBean.fromJson(e)).toList();
+    this.content = (json['data'] as List?)
+            ?.map((e) => ExcerptBean.fromJson(e))
+            ?.toList() ??
+        [];
   }
 }
 

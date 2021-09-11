@@ -35,7 +35,15 @@ class _RambleState extends State<RamblePage>
         setState(() {
           loading = false;
           excerptData.addAll(value);
-          pages = [...pages, ...value.map((e) => RambleContent(e)).toList()];
+          pages = [
+            ...pages,
+            ...value
+                .map((e) => RambleContent(
+                      e,
+                      parentController: _pageController,
+                    ))
+                .toList()
+          ];
         });
         if (curPage != -1 && curPage < excerptData.length - 1) {
           _pageController.nextPage(

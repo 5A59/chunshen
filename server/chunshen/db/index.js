@@ -11,15 +11,16 @@ const TAG_TABLE_NAME = 'tag'
 const COUNT_LIMIT = 5
 
 // 按页获取书摘
-exports.getExcerpts = (page) => {
+exports.getExcerpts = (page, tags) => {
   let defer = Q.defer()
+  let query = tags && tags.length > 0 ? {'content.tag': {$in: tags}} : {}
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME)
-      .find({}, {
+      .find(query, {
         skip: page * COUNT_LIMIT,
         limit: COUNT_LIMIT,
-        sort: 'content.time'
+        sort: {'content.time': -1}
       })
       .toArray((err, result) => {
         if (err) {
