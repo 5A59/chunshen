@@ -9,7 +9,7 @@
       "request": "launch",
       "runtimeArgs": [
         "run-script",
-        "start"
+        "devstart"
       ],
       "runtimeExecutable": "npm",
       "skipFiles": [

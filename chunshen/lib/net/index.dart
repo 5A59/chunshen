@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -21,6 +22,18 @@ class CSResponse {
 
 Future<CSResponse> httpGet(String path, {Map<String, dynamic>? query}) async {
   Response response = await _dio.get(path, queryParameters: query);
+  Map<String, dynamic> data = response.data;
+  CSResponse resp =
+      CSResponse._(data['status'], data['msg'], jsonEncode(data['data']));
+  return resp;
+}
+
+Future<CSResponse> httpPost(String path, {Map<String, dynamic>? body, Map<String, dynamic>? query}) async {
+  Response response = await _dio.post(path,
+      options: Options(headers: {
+        HttpHeaders.contentTypeHeader: "application/json",
+      }),
+      data: jsonEncode(body));
   Map<String, dynamic> data = response.data;
   CSResponse resp =
       CSResponse._(data['status'], data['msg'], jsonEncode(data['data']));

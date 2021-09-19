@@ -1,7 +1,8 @@
+import 'package:chunshen/config.dart';
+import 'package:chunshen/input/text/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/main/index.dart';
-import 'package:chunshen/bar/index.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,8 +14,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(scaffoldBackgroundColor: Color(CSColor.white)),
+      theme: ThemeData(scaffoldBackgroundColor: Color(CSColor.white), primaryColor: Color(CSColor.white)),
       home: MyHomePage(),
+      initialRoute: 'home',
+      routes: {
+        PAGE_HOME: (context) => MyHomePage(),
+        PAGE_TEXT_INPUT: (context) => TextInputPage()
+      },
     );
   }
 }

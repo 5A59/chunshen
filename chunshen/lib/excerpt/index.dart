@@ -2,10 +2,10 @@ import 'package:chunshen/base/widget/loading/index.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/style/index.dart';
+import 'package:chunshen/tag/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/excerpt/excerpt_item.dart';
-import 'package:chunshen/excerpt/tag/index.dart';
 
 class ExcerptPage extends StatefulWidget {
   @override
@@ -20,20 +20,16 @@ class _ExcerptState extends State<ExcerptPage>
   bool finish = false;
   Set<String> tags = Set();
   GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
+  GlobalKey<TagWidgetState> _tagKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    getTagList();
     getNextPageData();
   }
 
   void getTagList() async {
-    TagModel.getTagListBean().then((value) {
-      setState(() {
-        tagList.addAll(value.list);
-      });
-    });
+    _tagKey.currentState?.refresh();
   }
 
   void getNextPageData() async {
@@ -58,6 +54,7 @@ class _ExcerptState extends State<ExcerptPage>
   }
 
   Future<void> refresh() async {
+    getTagList();
     ExcerptListBean bean = await ExcerptModel.getExcerptListBean(0, tags);
     setState(() {
       list = [...bean.content];
@@ -103,7 +100,7 @@ class _ExcerptState extends State<ExcerptPage>
                       itemCount: list.length + 1,
                     ))),
           ])),
-      TagWidget(tagList, onTagSelected),
+      TagWidget(onTagSelected, key: _tagKey),
     ]);
   }
 

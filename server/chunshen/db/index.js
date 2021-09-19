@@ -13,15 +13,49 @@ const COUNT_LIMIT = 5
 // 按页获取书摘
 exports.getExcerpts = (page, tags) => {
   let defer = Q.defer()
-  let query = tags && tags.length > 0 ? {'content.tag': {$in: tags}} : {}
+  let query = tags && tags.length > 0 ? { 'content.tag': { $in: tags } } : {}
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
+    // dbo.collection(EXCERPT_TABLE_NAME)
+    //   .find(query, {
+    //     skip: page * COUNT_LIMIT,
+    //     limit: COUNT_LIMIT,
+    //     sort: { 'content.time': -1 }
+    //   })
+    //   .toArray((err, result) => {
+    //     if (err) {
+    //       defer.resolve()
+    //       db.close()
+    //       return
+    //     }
+    //     defer.resolve(result)
+    //     db.close()
+    //   })
+
     dbo.collection(EXCERPT_TABLE_NAME)
-      .find(query, {
-        skip: page * COUNT_LIMIT,
-        limit: COUNT_LIMIT,
-        sort: {'content.time': -1}
-      })
+      .aggregate([
+        {
+          $match: query
+        },
+        {
+          $skip: page * COUNT_LIMIT
+        },
+        {
+          $limit: COUNT_LIMIT
+        },
+        {
+          $sort: { 'content.time': -1 }
+        },
+        { $addFields: { _tagId: { $toObjectId: 'tagId' } } },
+        {
+          $lookup: {
+            from: TAG_TABLE_NAME,
+            localField: '_tagId',
+            foreignField: '_id',
+            as: 'tag',
+          }
+        }
+      ])
       .toArray((err, result) => {
         if (err) {
           defer.resolve()
@@ -70,9 +104,18 @@ exports.getTags = () => {
           db.close()
           return
         }
+        const newRes = result.map((r) => {
+          return {
+            id: r._id.toString(),
+            ...r
+          }
+        })
         defer.resolve(result)
         db.close()
       })
   })
   return defer.promise
+}
+
+exports.uploadExcerpts = () => {
 }
