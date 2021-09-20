@@ -34,3 +34,25 @@ exports.getTags = (req, res, next) => {
       next(utils.getFailRes(err))
     })
 }
+
+exports.uploadExcerpt = (req, res, next) => {
+  const { content, comment, tagId } = req.body
+  const excerpt = {
+    tagId,
+    content: {
+      time: Date.now(),
+      content
+    },
+    comment: comment ? [{
+      content: comment,
+      time: Date.now(),
+    }] : []
+  }
+  db.uploadExcerpt(excerpt)
+    .then(() => {
+      res.send(utils.getSuccessRes({}))
+    })
+    .catch((err) => {
+      next(utils.getFailRes(err))
+    })
+}

@@ -28,14 +28,19 @@ Future<CSResponse> httpGet(String path, {Map<String, dynamic>? query}) async {
   return resp;
 }
 
-Future<CSResponse> httpPost(String path, {Map<String, dynamic>? body, Map<String, dynamic>? query}) async {
-  Response response = await _dio.post(path,
-      options: Options(headers: {
-        HttpHeaders.contentTypeHeader: "application/json",
-      }),
-      data: jsonEncode(body));
-  Map<String, dynamic> data = response.data;
-  CSResponse resp =
-      CSResponse._(data['status'], data['msg'], jsonEncode(data['data']));
-  return resp;
+Future<CSResponse> httpPost(String path,
+    {Object? body, Map<String, dynamic>? query}) async {
+  try {
+    Response response = await _dio.post(path,
+        options: Options(headers: {
+          HttpHeaders.contentTypeHeader: "application/json",
+        }),
+        data: jsonEncode(body));
+    Map<String, dynamic> data = response.data;
+    CSResponse resp =
+        CSResponse._(data['status'], data['msg'], jsonEncode(data['data']));
+    return resp;
+  } catch (e) {
+    return CSResponse._(1, e.toString(), '');
+  }
 }

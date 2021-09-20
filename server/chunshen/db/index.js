@@ -10,28 +10,42 @@ const TAG_TABLE_NAME = 'tag'
 
 const COUNT_LIMIT = 5
 
+function reformatTag(tag) {
+  return {
+    ...tag,
+    id: tag._id.toString()
+  }
+}
+
+function reformatExcerpt(list) {
+  return list.map((r) => {
+    return {
+      ...r,
+      tag: reformatTag(r.tag[0]),
+    }
+  })
+}
+
+function lookUpTag() {
+  return [
+    { $addFields: { _tagId: { $toObjectId: '$tagId' } } },
+    {
+      $lookup: {
+        from: TAG_TABLE_NAME,
+        localField: '_tagId',
+        foreignField: '_id',
+        as: 'tag',
+      }
+    }
+  ]
+}
+
 // 按页获取书摘
 exports.getExcerpts = (page, tags) => {
   let defer = Q.defer()
-  let query = tags && tags.length > 0 ? { 'content.tag': { $in: tags } } : {}
+  let query = tags && tags.length > 0 ? { 'tagId': { $in: tags } } : {}
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
-    // dbo.collection(EXCERPT_TABLE_NAME)
-    //   .find(query, {
-    //     skip: page * COUNT_LIMIT,
-    //     limit: COUNT_LIMIT,
-    //     sort: { 'content.time': -1 }
-    //   })
-    //   .toArray((err, result) => {
-    //     if (err) {
-    //       defer.resolve()
-    //       db.close()
-    //       return
-    //     }
-    //     defer.resolve(result)
-    //     db.close()
-    //   })
-
     dbo.collection(EXCERPT_TABLE_NAME)
       .aggregate([
         {
@@ -46,15 +60,7 @@ exports.getExcerpts = (page, tags) => {
         {
           $sort: { 'content.time': -1 }
         },
-        { $addFields: { _tagId: { $toObjectId: 'tagId' } } },
-        {
-          $lookup: {
-            from: TAG_TABLE_NAME,
-            localField: '_tagId',
-            foreignField: '_id',
-            as: 'tag',
-          }
-        }
+        ...lookUpTag()
       ])
       .toArray((err, result) => {
         if (err) {
@@ -62,7 +68,8 @@ exports.getExcerpts = (page, tags) => {
           db.close()
           return
         }
-        defer.resolve(result)
+        const newRes = reformatExcerpt(result)
+        defer.resolve(newRes)
         db.close()
       })
   })
@@ -76,7 +83,8 @@ exports.getRamble = () => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME)
       .aggregate([
-        { $sample: { size: COUNT_LIMIT } }
+        { $sample: { size: COUNT_LIMIT } },
+        ...lookUpTag()
       ])
       .toArray((err, result) => {
         if (err) {
@@ -84,7 +92,8 @@ exports.getRamble = () => {
           db.close()
           return
         }
-        defer.resolve(result)
+        const newRes = reformatExcerpt(result)
+        defer.resolve(newRes)
         db.close()
       })
   })
@@ -105,17 +114,28 @@ exports.getTags = () => {
           return
         }
         const newRes = result.map((r) => {
-          return {
-            id: r._id.toString(),
-            ...r
-          }
+          return reformatTag(r)
         })
-        defer.resolve(result)
+        defer.resolve(newRes)
         db.close()
       })
   })
   return defer.promise
 }
 
-exports.uploadExcerpts = () => {
+exports.uploadExcerpt = (excerpt) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(EXCERPT_TABLE_NAME).insertOne(excerpt, (err, res) => {
+      if (err) {
+        defer.reject(err)
+        db.close()
+        return
+      }
+      defer.resolve()
+      db.close()
+    })
+  })
+  return defer.promise
 }

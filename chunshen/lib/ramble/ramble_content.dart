@@ -1,6 +1,7 @@
 import 'package:chunshen/excerpt/excerpt_item.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/style/index.dart';
+import 'package:chunshen/utils/index.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -60,7 +61,7 @@ class RambleContentState extends State<RambleContent> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    widget.bean?.excerptContent?.tag ?? '',
+                    widget.bean?.tag?.content ?? '',
                     style: TextStyle(
                         color: Color(CSColor.blue),
                         fontSize: 30,
@@ -73,7 +74,7 @@ class RambleContentState extends State<RambleContent> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        bean?.excerptContent?.time ?? '',
+                        formatTime(bean?.excerptContent?.time) ?? '',
                         style: TextStyle(color: Color(CSColor.gray2)),
                       )
                     ],

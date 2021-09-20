@@ -23,34 +23,39 @@ class _RambleState extends State<RamblePage>
   @override
   void initState() {
     super.initState();
+    _pageController.addListener(() {
+      if (_pageController.position.pixels ==
+          _pageController.position.maxScrollExtent) {
+        print('滑动到了最底部');
+        getRambleData(true);
+      }
+    });
     getRambleData();
   }
 
-  void getRambleData([int curPage = -1]) {
-    if (excerptData.isEmpty || curPage >= excerptData.length - 1) {
+  void getRambleData([bool autoNext = false]) {
+    setState(() {
+      loading = true;
+    });
+    RambleModel.getRambleData().then((value) {
       setState(() {
-        loading = true;
+        loading = false;
+        excerptData.addAll(value);
+        pages = [
+          ...pages,
+          ...value
+              .map((e) => RambleContent(
+                    e,
+                    parentController: _pageController,
+                  ))
+              .toList()
+        ];
       });
-      RambleModel.getRambleData().then((value) {
-        setState(() {
-          loading = false;
-          excerptData.addAll(value);
-          pages = [
-            ...pages,
-            ...value
-                .map((e) => RambleContent(
-                      e,
-                      parentController: _pageController,
-                    ))
-                .toList()
-          ];
-        });
-        if (curPage != -1 && curPage < excerptData.length - 1) {
-          _pageController.nextPage(
-              duration: Duration(milliseconds: 400), curve: Curves.easeOut);
-        }
-      });
-    }
+      if (autoNext) {
+        _pageController.nextPage(
+            duration: Duration(milliseconds: 400), curve: Curves.easeOut);
+      }
+    });
   }
 
   @override
@@ -64,7 +69,7 @@ class _RambleState extends State<RamblePage>
           controller: _pageController,
           physics: BouncingScrollPhysics(),
           onPageChanged: (index) {
-            getRambleData(index);
+            // getRambleData(index);
           },
           children: this.pages,
         )),

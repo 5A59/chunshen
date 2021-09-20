@@ -1,12 +1,13 @@
+import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
 
 class TagItem extends StatefulWidget {
-  String text = '';
+  TagBean? tag;
   bool selected = false;
-  Function(String text, bool selected)? onSelected;
+  Function(TagBean? tag, bool selected)? onSelected;
 
-  TagItem(this.text, this.selected, this.onSelected);
+  TagItem(this.tag, this.selected, this.onSelected);
 
   @override
   State<StatefulWidget> createState() {
@@ -23,7 +24,7 @@ class _TagItemState extends State<TagItem> {
         onTap: () {
           setState(() {
             selected = !selected;
-            widget.onSelected?.call(widget.text, selected);
+            widget.onSelected?.call(widget.tag, selected);
           });
         },
         child: Container(
@@ -32,7 +33,7 @@ class _TagItemState extends State<TagItem> {
                 border: Border.all(color: Color(color), width: 0.5),
                 borderRadius: BorderRadius.circular(3)),
             child: Text(
-              widget.text,
+              widget.tag?.content ?? '',
               style: TextStyle(color: Color(color)),
             )));
   }

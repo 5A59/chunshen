@@ -1,3 +1,6 @@
+import 'package:chunshen/model/excerpt.dart';
+import 'package:chunshen/model/index.dart';
+import 'package:chunshen/net/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/tag/index.dart';
 import 'package:chunshen/utils/index.dart';
@@ -34,9 +37,26 @@ class _TextInputState extends State<TextInputPage> {
         ));
   }
 
-  uploadExcerpt() {
+  uploadExcerpt(BuildContext context) async {
     if (isEmpty(tagId)) {
-      Fluttertoast.showToast(msg: '先选一本书吧～');
+      toast('先选一本书吧～');
+      return;
+    }
+    if (isEmpty(content)) {
+      toast('先加点内容吧～');
+      return;
+    }
+    showLoading(context);
+    ExcerptUploadBean bean = ExcerptUploadBean(tagId, content, comment);
+    CSResponse resp = await UploadModel.uploadNewExcerpt(bean);
+    hideLoading(context);
+    if (resp.status == 0) {
+      // success
+      Fluttertoast.showToast(msg: '上传成功');
+      // Navigator.pop(context);
+    } else {
+      // fail
+      Fluttertoast.showToast(msg: '上传失败，请稍后重试～');
     }
   }
 
@@ -72,7 +92,7 @@ class _TextInputState extends State<TextInputPage> {
                               MaterialStateProperty.all<Color>(Colors.blue),
                         ),
                         onPressed: () {
-                          uploadExcerpt();
+                          uploadExcerpt(context);
                         },
                         child: Text('提交'),
                       ))

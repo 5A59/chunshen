@@ -61,9 +61,9 @@ class UploadModel {
   UploadModel._();
 
   static Future<CSResponse> uploadNewExcerpt(
-      String content, String comment) async {
+      ExcerptUploadBean bean) async {
     CSResponse resp =
-        await httpPost('', body: {'content': content, 'comment': comment});
+        await httpPost('/excerpt', body: bean);
     return resp;
   }
 }

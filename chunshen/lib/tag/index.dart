@@ -48,32 +48,32 @@ class TagWidgetState extends State<TagWidget> {
     });
   }
 
-  onTagSelected(String text, bool selected) {
+  onTagSelected(TagBean? tag, bool selected) {
     if (widget.multiSelect) {
       if (selected) {
-        tags.add(text);
+        tags.add(tag?.id ?? '');
       } else {
-        tags.remove(text);
+        tags.remove(tag?.id ?? '');
       }
     } else {
       setState(() {
         tags = Set();
         if (selected) {
-          tags.add(text);
+          tags.add(tag?.id ?? '');
         }
       });
     }
     widget.onTagSelected?.call(tags);
   }
 
-  bool tagSelected(String text) {
-    return tags.contains(text);
+  bool tagSelected(TagBean tag) {
+    return tags.contains(tag.id);
   }
 
-  Widget buildTagItem(String text) {
+  Widget buildTagItem(TagBean tag) {
     return Padding(
       padding: EdgeInsets.only(right: 10),
-      child: TagItem(text, tagSelected(text), onTagSelected),
+      child: TagItem(tag, tagSelected(tag), onTagSelected),
     );
   }
 
@@ -92,8 +92,7 @@ class TagWidgetState extends State<TagWidget> {
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, i) {
-                    String text = list[i].content ?? '';
-                    return buildTagItem(text);
+                    return buildTagItem(list[i]);
                   },
                   itemCount: list.length,
                 )),
@@ -124,8 +123,7 @@ class TagWidgetState extends State<TagWidget> {
                     direction: Axis.horizontal,
                     runSpacing: 10,
                     children: list.map((e) {
-                      String text = e.content ?? '';
-                      return buildTagItem(text);
+                      return buildTagItem(e);
                     }).toList(),
                   ),
                 ),

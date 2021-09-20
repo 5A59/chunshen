@@ -1,4 +1,6 @@
 import 'package:chunshen/model/excerpt.dart';
+import 'package:chunshen/model/tag.dart';
+import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/style/index.dart';
 
@@ -31,7 +33,7 @@ class ExcerptCommentItem extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              comment?[i].time ?? '',
+                              formatTime(comment?[i].time) ?? '',
                               style: TextStyle(color: Color(CSColor.gray2)),
                             )
                           ],
@@ -47,9 +49,10 @@ class ExcerptCommentItem extends StatelessWidget {
 }
 
 class ExcerptContentItem extends StatelessWidget {
+  final TagBean? tag;
   final ExcerptContentBean? bean;
 
-  ExcerptContentItem(this.bean);
+  ExcerptContentItem(this.tag, this.bean);
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +60,7 @@ class ExcerptContentItem extends StatelessWidget {
         ? Column(
             children: [
               Text(
-                this.bean?.tag ?? '',
+                this.tag?.content ?? '',
                 style: TextStyle(
                     fontSize: 18,
                     color: Color(CSColor.blue),
@@ -69,7 +72,7 @@ class ExcerptContentItem extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    this.bean?.time ?? '',
+                    formatTime(this.bean?.time) ?? '',
                     style: TextStyle(color: Color(CSColor.gray2)),
                   )
                 ],
@@ -96,13 +99,13 @@ class ExcerptItem extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(bean.excerptContent?.head ?? '',
+                Image.network(bean.tag?.head ?? '',
                     width: 50, height: 80),
                 SizedBox(
                   width: 10,
                 ),
                 Flexible(
-                  child: ExcerptContentItem(bean.excerptContent),
+                  child: ExcerptContentItem(bean.tag, bean.excerptContent),
                 )
               ],
             ),
