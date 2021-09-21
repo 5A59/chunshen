@@ -27,6 +27,11 @@ class ExcerptModel extends BaseModel {
     Map<String, dynamic> data = BaseModel._parseJson(resp.data);
     return ExcerptListBean.fromJson(data);
   }
+
+  static Future<CSResponse> uploadNewExcerpt(ExcerptUploadBean bean) async {
+    CSResponse resp = await httpPost('/excerpt', body: bean);
+    return resp;
+  }
 }
 
 class TagModel extends BaseModel {
@@ -57,13 +62,12 @@ class RambleModel extends BaseModel {
   }
 }
 
-class UploadModel {
-  UploadModel._();
+class CommentModel {
+  CommentModel._();
 
-  static Future<CSResponse> uploadNewExcerpt(
-      ExcerptUploadBean bean) async {
-    CSResponse resp =
-        await httpPost('/excerpt', body: bean);
+  static Future<CSResponse> uploadNewComment(
+      String? excerptId, String? content) async {
+    CSResponse resp = await httpPost('/comment', body: {excerptId, content});
     return resp;
   }
 }

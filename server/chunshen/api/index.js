@@ -56,3 +56,22 @@ exports.uploadExcerpt = (req, res, next) => {
       next(utils.getFailRes(err))
     })
 }
+
+exports.uploadComment = (req, res, next) => {
+  const { excerptId, content } = req.body
+  const comment = {
+    excerptId,
+    content,
+    time: Date.now()
+  }
+  db.uploadComment(comment)
+    .then((id) => {
+      return db.insertCommentInExcerpt(excerptId, id)
+    })
+    .then(() => {
+      res.send(utils.getSuccessRes({}))
+    })
+    .catch(() => {
+      next(utils.getFailRes(err))
+    })
+}

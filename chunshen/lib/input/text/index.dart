@@ -48,7 +48,7 @@ class _TextInputState extends State<TextInputPage> {
     }
     showLoading(context);
     ExcerptUploadBean bean = ExcerptUploadBean(tagId, content, comment);
-    CSResponse resp = await UploadModel.uploadNewExcerpt(bean);
+    CSResponse resp = await ExcerptModel.uploadNewExcerpt(bean);
     hideLoading(context);
     if (resp.status == 0) {
       // success

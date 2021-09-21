@@ -7,6 +7,7 @@ const URL = DB_CONFIG.URL
 const DB_NAME = 'chunshen'
 const EXCERPT_TABLE_NAME = 'excerpt'
 const TAG_TABLE_NAME = 'tag'
+const COMMENT_TABLE_NAME = 'comment'
 
 const COUNT_LIMIT = 5
 
@@ -40,6 +41,32 @@ function lookUpTag() {
   ]
 }
 
+function loopUpComment() {
+  return [
+    {
+      $addFields: {
+        comment: {
+          $map: {
+            input: '$comment',
+            as: 'c',
+            in: {
+              $toObjectId: '$$c'
+            }
+          }
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: COMMENT_TABLE_NAME,
+        localField: 'comment',
+        foreignField: '_id',
+        as: 'comment',
+      }
+    }
+  ]
+}
+
 // 按页获取书摘
 exports.getExcerpts = (page, tags) => {
   let defer = Q.defer()
@@ -60,7 +87,8 @@ exports.getExcerpts = (page, tags) => {
         {
           $sort: { 'content.time': -1 }
         },
-        ...lookUpTag()
+        ...lookUpTag(),
+        ...loopUpComment()
       ])
       .toArray((err, result) => {
         if (err) {
@@ -134,6 +162,44 @@ exports.uploadExcerpt = (excerpt) => {
         return
       }
       defer.resolve()
+      db.close()
+    })
+  })
+  return defer.promise
+}
+
+exports.insertCommentInExcerpt = (excerptId, commentId) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(EXCERPT_TABLE_NAME)
+      .updateOne(
+        { _id: { $toObjectId: excerptId } },
+        { $push: { 'comment': commentId } },
+        (err, res) => {
+          if (err) {
+            defer.reject(err)
+            db.close()
+            return
+          }
+          defer.resolve()
+          db.close()
+        })
+  })
+  return defer.promise
+}
+
+exports.uploadComment = (comment) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(COMMENT_TABLE_NAME).insertOne(comment, (err, res) => {
+      if (err) {
+        defer.reject(err)
+        db.close()
+        return
+      }
+      defer.resolve(comment._id.toString())
       db.close()
     })
   })
