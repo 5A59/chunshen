@@ -33,7 +33,7 @@ class ExcerptBean {
   List<ExcerptCommentBean> comment = [];
 
   ExcerptBean.fromJson(Map<String, dynamic> json) {
-    this.id = json['id'];
+    this.id = json['_id'];
     this.tag = TagBean.fromJson(json['tag']);
     this.excerptContent = ExcerptContentBean.fromJson(json['content']);
     this.comment = (json['comment'] as List?)
@@ -56,8 +56,26 @@ class ExcerptContentBean {
 class ExcerptCommentBean {
   int? time;
   String? content;
+
+  ExcerptCommentBean();
+  ExcerptCommentBean.create(this.content, this.time);
+
   ExcerptCommentBean.fromJson(Map<String, dynamic> json) {
     this.time = json['time'];
     this.content = json['content'];
+  }
+}
+
+class CommentUploadBean {
+  String? excerptId;
+  String? content;
+
+  CommentUploadBean(this.excerptId, this.content);
+
+  Map toJson() {
+    Map map = Map();
+    map['content'] = content;
+    map['excerptId'] = excerptId;
+    return map;
   }
 }

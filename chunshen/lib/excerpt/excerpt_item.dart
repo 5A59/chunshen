@@ -1,6 +1,7 @@
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
+import 'package:chunshen/net/index.dart';
 import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/style/index.dart';
@@ -54,8 +55,9 @@ class ExcerptCommentItem extends StatelessWidget {
 
 class ExcerptContentItem extends StatefulWidget {
   final ExcerptBean? bean;
+  final Function? onCommentAdded;
 
-  ExcerptContentItem(this.bean);
+  ExcerptContentItem(this.bean, this.onCommentAdded);
 
   @override
   State<StatefulWidget> createState() {
@@ -64,9 +66,9 @@ class ExcerptContentItem extends StatefulWidget {
 }
 
 class ExcerptContentItemState extends State<ExcerptContentItem> {
-  final OutlineInputBorder border =
-      OutlineInputBorder(borderSide: BorderSide(color: Color(CSColor.gray2)));
+  final InputBorder border = InputBorder.none;
   bool showCommentInput = false;
+  String? comment = '';
 
   PopupMenuItem<String> getPopItem(String text, String value) {
     return PopupMenuItem<String>(
@@ -100,9 +102,7 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
       case 'share':
         break;
       case 'comment':
-        setState(() {
-          showCommentInput = true;
-        });
+        triggerCommentInput(true);
         break;
       case 'edit':
         break;
@@ -112,30 +112,59 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
     }
   }
 
-  uploadComment() {
-    CommentModel.uploadNewComment(widget.bean?.id, '11');
+  triggerCommentInput(show) {
+    setState(() {
+      showCommentInput = show;
+    });
+  }
+
+  uploadComment() async {
+    if (isEmpty(comment)) {
+      triggerCommentInput(false);
+      return;
+    }
+    CSResponse response =
+        await CommentModel.uploadNewComment(widget.bean?.id, comment);
+    if (response.status == 0) {
+      toast('提交成功');
+      triggerCommentInput(false);
+      widget.onCommentAdded?.call(ExcerptCommentBean.create(
+          comment, DateTime.now().microsecondsSinceEpoch));
+    }
   }
 
   Widget buildCommentInput() {
-    return Row(
-      children: [
-        Expanded(
-            child: TextField(
-          style: TextStyle(
-            fontSize: 15,
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(color: Color(CSColor.gray2), width: 0.5),
+          borderRadius: BorderRadius.circular(3)),
+      child: Column(
+        children: [
+          TextField(
+            onChanged: (String content) {
+              comment = content;
+            },
+            style: TextStyle(
+              fontSize: 15,
+            ),
+            decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
+                border: border,
+                enabledBorder: border,
+                focusedBorder: border,
+                hintText: '评论'),
+            maxLines: 3,
+            minLines: 1,
           ),
-          decoration: InputDecoration(
-              contentPadding:
-                  EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
-              border: border,
-              enabledBorder: border,
-              focusedBorder: border,
-              hintText: '评论'),
-          maxLines: 2,
-          minLines: 1,
-        )),
-        TextButton(onPressed: uploadComment, child: Text('提交'))
-      ],
+          Row(
+            children: [
+              Spacer(),
+              TextButton(onPressed: uploadComment, child: Text('提交'))
+            ],
+          )
+        ],
+      ),
     );
   }
 
@@ -173,13 +202,30 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
   }
 }
 
-class ExcerptItem extends StatelessWidget {
+class ExcerptItem extends StatefulWidget {
   final ExcerptBean bean;
-
   ExcerptItem(this.bean);
 
   @override
+  State<StatefulWidget> createState() {
+    return ExcerptItemState();
+  }
+}
+
+class ExcerptItemState extends State<ExcerptItem> {
+  // final ExcerptBean bean;
+
+  // ExcerptItemState(this.bean);
+
+  onCommentAdded(ExcerptCommentBean comment) {
+    setState(() {
+      widget.bean.comment.add(comment);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    ExcerptBean bean = widget.bean;
     return Container(
         margin: EdgeInsets.only(top: 20),
         child: Column(
@@ -193,7 +239,7 @@ class ExcerptItem extends StatelessWidget {
                   width: 10,
                 ),
                 Flexible(
-                  child: ExcerptContentItem(bean),
+                  child: ExcerptContentItem(bean, onCommentAdded),
                 )
               ],
             ),

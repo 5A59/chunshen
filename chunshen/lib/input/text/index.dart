@@ -53,7 +53,7 @@ class _TextInputState extends State<TextInputPage> {
     if (resp.status == 0) {
       // success
       Fluttertoast.showToast(msg: '上传成功');
-      // Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       // fail
       Fluttertoast.showToast(msg: '上传失败，请稍后重试～');

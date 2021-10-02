@@ -6,9 +6,7 @@ exports.getExcerpts = (req, res, next) => {
   const { page, tags = '[]' } = req.query
   db.getExcerpts(page, JSON.parse(tags))
     .then((excerpts) => {
-      setTimeout(() => {
-        res.send(utils.getSuccessRes({ data: excerpts }))
-      }, 1000)
+      res.send(utils.getSuccessRes({ data: excerpts }))
     })
     .catch((err) => {
       next(utils.getFailRes(err))
@@ -37,24 +35,46 @@ exports.getTags = (req, res, next) => {
 
 exports.uploadExcerpt = (req, res, next) => {
   const { content, comment, tagId } = req.body
-  const excerpt = {
-    tagId,
-    content: {
-      time: Date.now(),
-      content
-    },
-    comment: comment ? [{
+  if (comment) {
+    const commentObj = {
       content: comment,
-      time: Date.now(),
-    }] : []
+      time: Date.now()
+    }
+    db.uploadComment(commentObj)
+      .then((id) => {
+        const excerpt = {
+          tagId,
+          content: {
+            time: Date.now(),
+            content
+          },
+          comment: [id]
+        }
+        return db.uploadExcerpt(excerpt)
+      })
+      .then(() => {
+        res.send(utils.getSuccessRes({}))
+      })
+      .catch((err) => {
+        next(utils.getFailRes(err))
+      })
+  } else {
+    const excerpt = {
+      tagId,
+      content: {
+        time: Date.now(),
+        content
+      },
+      comment: []
+    }
+    db.uploadExcerpt(excerpt)
+      .then(() => {
+        res.send(utils.getSuccessRes({}))
+      })
+      .catch((err) => {
+        next(utils.getFailRes(err))
+      })
   }
-  db.uploadExcerpt(excerpt)
-    .then(() => {
-      res.send(utils.getSuccessRes({}))
-    })
-    .catch((err) => {
-      next(utils.getFailRes(err))
-    })
 }
 
 exports.uploadComment = (req, res, next) => {
@@ -71,7 +91,7 @@ exports.uploadComment = (req, res, next) => {
     .then(() => {
       res.send(utils.getSuccessRes({}))
     })
-    .catch(() => {
+    .catch((err) => {
       next(utils.getFailRes(err))
     })
 }

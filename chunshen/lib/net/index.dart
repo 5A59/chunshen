@@ -4,8 +4,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../config.dart';
+
 const DEBUG = kDebugMode;
-const DEBUG_URL = 'http://127.0.0.1:3000/api';
 const URL = '';
 
 var _options = BaseOptions(baseUrl: DEBUG ? DEBUG_URL : URL);
@@ -35,7 +36,7 @@ Future<CSResponse> httpPost(String path,
         options: Options(headers: {
           HttpHeaders.contentTypeHeader: "application/json",
         }),
-        data: jsonEncode(body));
+        data: body);
     Map<String, dynamic> data = response.data;
     CSResponse resp =
         CSResponse._(data['status'], data['msg'], jsonEncode(data['data']));

@@ -1,4 +1,5 @@
 import 'package:chunshen/base/widget/loading/index.dart';
+import 'package:chunshen/main/index.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/style/index.dart';
@@ -7,9 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/excerpt/excerpt_item.dart';
 
-class ExcerptPage extends StatefulWidget {
+class ExcerptPage extends StatefulWidget implements IOperationListener {
+  final _ExcerptState state = _ExcerptState();
+
   @override
-  _ExcerptState createState() => _ExcerptState();
+  _ExcerptState createState() => state;
+
+  @override
+  onExcerptUploadFinished() {
+    state.forceRefresh();
+  }
 }
 
 class _ExcerptState extends State<ExcerptPage>
@@ -21,6 +29,7 @@ class _ExcerptState extends State<ExcerptPage>
   Set<String> tags = Set();
   GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
   GlobalKey<TagWidgetState> _tagKey = GlobalKey();
+  bool refreshFlag = false;
 
   @override
   void initState() {
@@ -50,6 +59,10 @@ class _ExcerptState extends State<ExcerptPage>
   onTagSelected(Set<String> tags) {
     this.tags.clear();
     this.tags.addAll(tags);
+    forceRefresh();
+  }
+
+  forceRefresh() {
     _refreshKey.currentState?.show();
   }
 
@@ -91,7 +104,6 @@ class _ExcerptState extends State<ExcerptPage>
                                   height: 50,
                                   child: BallBounceLoading()));
                         } else if (i < list.length) {
-                          // return Text(list[i].excerptContent?.content ?? 'null');
                           return ExcerptItem(list[i]);
                         } else {
                           return Container();

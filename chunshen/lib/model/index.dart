@@ -67,7 +67,8 @@ class CommentModel {
 
   static Future<CSResponse> uploadNewComment(
       String? excerptId, String? content) async {
-    CSResponse resp = await httpPost('/comment', body: {excerptId, content});
+    CSResponse resp =
+        await httpPost('/comment', body: CommentUploadBean(excerptId, content));
     return resp;
   }
 }

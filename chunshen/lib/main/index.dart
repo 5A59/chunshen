@@ -4,12 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:chunshen/excerpt/index.dart';
 import 'package:chunshen/ramble/index.dart';
 
+abstract class IOperationListener {
+  onExcerptUploadFinished();
+}
+
 class MainPage extends StatefulWidget {
   @override
   MainState createState() => MainState();
 }
 
 class MainState extends State<MainPage> {
+  ExcerptPage excerptPage = ExcerptPage();
+  RamblePage ramblePage = RamblePage();
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -27,12 +34,12 @@ class MainState extends State<MainPage> {
             labelColor: Colors.black,
             unselectedLabelColor: Color(CSColor.gray3),
           ),
-          Expanded(child: TabBarView(children: [ExcerptPage(), RamblePage()])),
+          Expanded(child: TabBarView(children: [excerptPage, ramblePage])),
           Divider(
             height: 1,
             thickness: 1,
           ),
-          OperationBar()
+          OperationBar(excerptPage,)
         ],
       ),
     );

@@ -1,5 +1,5 @@
 const Q = require('q')
-const MongoClient = require('mongodb').MongoClient
+const { MongoClient, ObjectId } = require('mongodb')
 const DB_CONFIG = require('../../config').DB_CONFIG
 
 const URL = DB_CONFIG.URL
@@ -79,13 +79,13 @@ exports.getExcerpts = (page, tags) => {
           $match: query
         },
         {
+          $sort: { 'content.time': -1 }
+        },
+        {
           $skip: page * COUNT_LIMIT
         },
         {
           $limit: COUNT_LIMIT
-        },
-        {
-          $sort: { 'content.time': -1 }
         },
         ...lookUpTag(),
         ...loopUpComment()
@@ -112,7 +112,8 @@ exports.getRamble = () => {
     dbo.collection(EXCERPT_TABLE_NAME)
       .aggregate([
         { $sample: { size: COUNT_LIMIT } },
-        ...lookUpTag()
+        ...lookUpTag(),
+        ...loopUpComment()
       ])
       .toArray((err, result) => {
         if (err) {
@@ -174,7 +175,7 @@ exports.insertCommentInExcerpt = (excerptId, commentId) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME)
       .updateOne(
-        { _id: { $toObjectId: excerptId } },
+        { _id: ObjectId(excerptId) },
         { $push: { 'comment': commentId } },
         (err, res) => {
           if (err) {
