@@ -1,3 +1,4 @@
+import 'package:chunshen/model/spider/index.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/net/index.dart';
 
@@ -46,6 +47,15 @@ class TagModel extends BaseModel {
     Map<String, dynamic> data = BaseModel._parseJson(resp.data);
     return TagListBean.fromJson(data);
   }
+
+  static search(String tag) async {
+    return DoubanSpider().search(tag);
+  }
+
+  static addTag(TagBean tag) async {
+    CSResponse resp = await httpPost('/tag', body: tag);
+    return resp;
+  }
 }
 
 class RambleModel extends BaseModel {
@@ -65,10 +75,36 @@ class RambleModel extends BaseModel {
 class CommentModel {
   CommentModel._();
 
-  static Future<CSResponse> uploadNewComment(
+  static Future<ExcerptCommentBean?> uploadNewComment(
       String? excerptId, String? content) async {
     CSResponse resp =
         await httpPost('/comment', body: CommentUploadBean(excerptId, content));
-    return resp;
+    if (CSResponse.success(resp)) {
+      Map<String, dynamic> data = BaseModel._parseJson(resp.data);
+      return ExcerptCommentBean.fromJson(data);
+    }
+    return null;
+  }
+}
+
+class DeleteModel {
+  DeleteModel._();
+
+  static Future<CSResponse> deleteExcerpt(String? id) async {
+    if (id == null) {
+      return CSResponse.error();
+    }
+    CSResponse response =
+        await httpPost('/deleteExcerpt', body: DeleteBean(id));
+    return response;
+  }
+
+  static Future<CSResponse> deleteComment(String? excerptId, String? id) async {
+    if (id == null || excerptId == null) {
+      return CSResponse.error();
+    }
+    CSResponse response = await httpPost('/deleteComment',
+        body: CommentDeleteBean(excerptId, id));
+    return response;
   }
 }

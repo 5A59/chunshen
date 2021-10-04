@@ -80,7 +80,7 @@ class RambleContentState extends State<RambleContent> {
                     ],
                   ),
                   space,
-                  ExcerptCommentItem(bean?.comment)
+                  ExcerptCommentItem(bean, bean?.comment)
                 ],
               ))),
     );

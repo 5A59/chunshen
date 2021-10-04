@@ -1,14 +1,26 @@
 class TagBean {
-  String ? id;
+  String? id;
   String? head;
   String? content;
+  // 客户端使用
+  String? publish;
+  bool self = false;
 
-  TagBean._();
+  TagBean(this.id, this.head, this.content, this.publish);
 
   TagBean.fromJson(Map<String, dynamic> json) {
     this.id = json['id'];
     this.head = json['head'];
     this.content = json['content'];
+  }
+
+  Map toJson() {
+    Map map = Map();
+    map['head'] = head;
+    map['content'] = content;
+    map['publish'] = publish;
+    map['self'] = self;
+    return map;
   }
 }
 

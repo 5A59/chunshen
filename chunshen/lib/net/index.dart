@@ -19,6 +19,23 @@ class CSResponse {
   String data = '';
 
   CSResponse._(this.status, this.msg, this.data);
+
+  static bool success(CSResponse? resp) {
+    return resp != null && resp.status == 0;
+  }
+
+  static bool fail(CSResponse? resp) {
+    return resp == null || resp.status != 0;
+  }
+
+  static CSResponse error({int status = 1, String error = 'error'}) {
+    return CSResponse._(status, error, '');
+  }
+}
+
+Future<Response> rawGet(String path, {Map<String, dynamic>? query}) async {
+  Response response = await _dio.get(path, queryParameters: query);
+  return response;
 }
 
 Future<CSResponse> httpGet(String path, {Map<String, dynamic>? query}) async {

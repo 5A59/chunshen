@@ -1,14 +1,19 @@
 import 'package:chunshen/model/tag.dart';
 
 class ExcerptUploadBean {
+  String? id;
   String? content;
   String? comment;
   String? tagId;
+  // 不给后端用，客户端用
+  String? tagName;
+  String? tagImage;
 
-  ExcerptUploadBean(this.tagId, this.content, this.comment);
+  ExcerptUploadBean(this.tagId, this.content, this.comment, {this.id});
 
   Map toJson() {
     Map map = Map();
+    map['id'] = id;
     map['content'] = content;
     map['comment'] = comment;
     map['tagId'] = tagId;
@@ -54,6 +59,7 @@ class ExcerptContentBean {
 }
 
 class ExcerptCommentBean {
+  String? id;
   int? time;
   String? content;
 
@@ -61,6 +67,7 @@ class ExcerptCommentBean {
   ExcerptCommentBean.create(this.content, this.time);
 
   ExcerptCommentBean.fromJson(Map<String, dynamic> json) {
+    this.id = json['_id'];
     this.time = json['time'];
     this.content = json['content'];
   }
@@ -78,4 +85,27 @@ class CommentUploadBean {
     map['excerptId'] = excerptId;
     return map;
   }
+}
+
+class DeleteBean {
+  String id;
+  DeleteBean(this.id);
+
+  Map toJson() {
+    Map map = Map();
+    map['id'] = id;
+    return map;
+  }
+}
+
+class CommentDeleteBean extends DeleteBean {
+  String excerptId;
+  CommentDeleteBean(this.excerptId, String id) : super(id);
+
+  Map toJson() {
+    Map map = super.toJson();
+    map['excerptId'] = excerptId;
+    return map;
+  }
+
 }

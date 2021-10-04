@@ -56,7 +56,7 @@ class _ExcerptState extends State<ExcerptPage>
     }
   }
 
-  onTagSelected(Set<String> tags) {
+  onTagSelected(Set<String> tags, List<TagBean> list) {
     this.tags.clear();
     this.tags.addAll(tags);
     forceRefresh();
@@ -73,6 +73,12 @@ class _ExcerptState extends State<ExcerptPage>
       list = [...bean.content];
       finish = false;
       page = 1;
+    });
+  }
+
+  onExcerptDelete(int i) {
+    setState(() {
+      list.removeAt(i);
     });
   }
 
@@ -104,7 +110,12 @@ class _ExcerptState extends State<ExcerptPage>
                                   height: 50,
                                   child: BallBounceLoading()));
                         } else if (i < list.length) {
-                          return ExcerptItem(list[i]);
+                          return ExcerptItem(
+                            list[i],
+                            onExcerptDelete: () {
+                              onExcerptDelete(i);
+                            },
+                          );
                         } else {
                           return Container();
                         }

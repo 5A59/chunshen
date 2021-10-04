@@ -8,6 +8,7 @@ const DB_NAME = 'chunshen'
 const EXCERPT_TABLE_NAME = 'excerpt'
 const TAG_TABLE_NAME = 'tag'
 const COMMENT_TABLE_NAME = 'comment'
+const BOOK_TABLE_NAME = 'book'
 
 const COUNT_LIMIT = 5
 
@@ -136,6 +137,9 @@ exports.getTags = () => {
     let dbo = db.db(DB_NAME)
     dbo.collection(TAG_TABLE_NAME)
       .find({})
+      .sort({
+        'time': -1
+      })
       .toArray((err, result) => {
         if (err) {
           defer.resolve()
@@ -146,6 +150,48 @@ exports.getTags = () => {
           return reformatTag(r)
         })
         defer.resolve(newRes)
+        db.close()
+      })
+  })
+  return defer.promise
+}
+
+exports.addTag = (tag) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(TAG_TABLE_NAME).insertOne(tag, (err, res) => {
+      if (err) {
+        defer.reject(err)
+        db.close()
+        return
+      }
+      defer.resolve(tag)
+      db.close()
+    })
+  })
+  return defer.promise
+}
+
+exports.addBook = (book) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(BOOK_TABLE_NAME).updateOne(
+      book,
+      {
+        $set: {}
+      },
+      {
+        upsert: true
+      },
+      (err, res) => {
+        if (err) {
+          defer.reject(err)
+          db.close()
+          return
+        }
+        defer.resolve(book)
         db.close()
       })
   })
@@ -165,6 +211,53 @@ exports.uploadExcerpt = (excerpt) => {
       defer.resolve()
       db.close()
     })
+  })
+  return defer.promise
+}
+
+exports.updateExcerpt = (excerpt) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(EXCERPT_TABLE_NAME).updateOne(
+      { _id: ObjectId(excerpt.id) },
+      {
+        $set: {
+          tagId: excerpt.tagId,
+          'content.content': excerpt.content
+        }
+      },
+      {
+        upsert: true
+      },
+      (err, res) => {
+        if (err) {
+          defer.reject(err)
+          db.close()
+          return
+        }
+        defer.resolve()
+        db.close()
+      })
+  })
+  return defer.promise
+}
+
+exports.deleteExcerpt = (id) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(EXCERPT_TABLE_NAME).deleteOne(
+      { _id: ObjectId(id) },
+      (err, res) => {
+        if (err) {
+          defer.reject(err)
+          db.close()
+          return
+        }
+        defer.resolve()
+        db.close()
+      })
   })
   return defer.promise
 }
@@ -190,6 +283,27 @@ exports.insertCommentInExcerpt = (excerptId, commentId) => {
   return defer.promise
 }
 
+exports.removeCommentInExcerpt = (excerptId, commentId) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(EXCERPT_TABLE_NAME)
+      .updateOne(
+        { _id: ObjectId(excerptId) },
+        { $pull: { 'comment': commentId } },
+        (err, res) => {
+          if (err) {
+            defer.reject(err)
+            db.close()
+            return
+          }
+          defer.resolve()
+          db.close()
+        })
+  })
+  return defer.promise
+}
+
 exports.uploadComment = (comment) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
@@ -200,9 +314,28 @@ exports.uploadComment = (comment) => {
         db.close()
         return
       }
-      defer.resolve(comment._id.toString())
+      defer.resolve(comment)
       db.close()
     })
+  })
+  return defer.promise
+}
+
+exports.deleteComment = (id) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(COMMENT_TABLE_NAME).deleteOne(
+      { _id: ObjectId(id) },
+      (err, res) => {
+        if (err) {
+          defer.reject(err)
+          db.close()
+          return
+        }
+        defer.resolve()
+        db.close()
+      })
   })
   return defer.promise
 }

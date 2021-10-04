@@ -2,13 +2,22 @@ import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/tag/tag_item.dart';
+import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
 
-class TagWidget extends StatefulWidget {
-  Function(Set<String>)? onTagSelected;
-  bool multiSelect = true;
+import '../config.dart';
 
-  TagWidget(this.onTagSelected, {Key? key, this.multiSelect = true})
+class TagWidget extends StatefulWidget {
+  Function(Set<String>, List<TagBean>)? onTagSelected;
+  List<String>? defaultTags;
+  bool multiSelect = true;
+  bool showAdd = false;
+
+  TagWidget(this.onTagSelected,
+      {Key? key,
+      this.multiSelect = true,
+      this.defaultTags,
+      this.showAdd = false})
       : super(key: key);
 
   @override
@@ -24,6 +33,7 @@ class TagWidgetState extends State<TagWidget> {
 
   @override
   void initState() {
+    tags.addAll(widget.defaultTags ?? []);
     refresh();
     super.initState();
   }
@@ -63,11 +73,18 @@ class TagWidgetState extends State<TagWidget> {
         }
       });
     }
-    widget.onTagSelected?.call(tags);
+    widget.onTagSelected?.call(tags, tagList);
   }
 
   bool tagSelected(TagBean tag) {
     return tags.contains(tag.id);
+  }
+
+  addTag() async {
+    Object? res = await openPage(context, PAGE_ADD_TAG);
+    if (res == true) {
+      refresh();
+    }
   }
 
   Widget buildTagItem(TagBean tag) {
@@ -99,6 +116,8 @@ class TagWidgetState extends State<TagWidget> {
                 SizedBox(
                   width: 10,
                 ),
+                if (widget.showAdd)
+                  IconButton(onPressed: addTag, icon: Icon(Icons.add)),
                 IconButton(
                     onPressed: () {
                       dialogDown();

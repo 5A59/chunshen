@@ -3,6 +3,7 @@ import 'package:chunshen/main/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class OperationBar extends StatefulWidget {
   final IOperationListener? listener;
@@ -10,13 +11,13 @@ class OperationBar extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return OperationBarState(listener: listener);
+    return _OperationBarState(listener: listener);
   }
 }
 
-class OperationBarState extends State<OperationBar> {
+class _OperationBarState extends State<OperationBar> {
   final IOperationListener? listener;
-  OperationBarState({this.listener});
+  _OperationBarState({this.listener});
 
   List<Widget> getIconWithSpace(IconData iconData, {void Function()? onTap}) {
     return [
@@ -31,6 +32,27 @@ class OperationBarState extends State<OperationBar> {
     ];
   }
 
+  _openTextInput() async {
+    var res = await openPage(context, PAGE_TEXT_INPUT);
+    setState(() {});
+    if (res != null) {
+      listener?.onExcerptUploadFinished();
+    }
+  }
+
+  _openImage() async {
+    ImagePicker _picker = ImagePicker();
+    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  }
+
+  _onMenuSelected(String value) {
+    switch (value) {
+      case 'book':
+        break;
+      default:
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,21 +62,20 @@ class OperationBarState extends State<OperationBar> {
             padding: EdgeInsets.only(left: 20, right: 20),
             child: Row(
               children: [
-                ...getIconWithSpace(Icons.keyboard, onTap: () async {
-                  var res = await openPage(context, PAGE_TEXT_INPUT);
-                  setState(() {
-                  });
-                  if (res != null) {
-                    listener?.onExcerptUploadFinished();
-                  }
-                }),
-                ...getIconWithSpace(Icons.photo_camera),
+                ...getIconWithSpace(Icons.keyboard, onTap: _openTextInput),
+                ...getIconWithSpace(Icons.photo_camera, onTap: _openImage),
                 ...getIconWithSpace(Icons.publish),
                 Expanded(child: SizedBox()),
-                Icon(
-                  Icons.tune,
-                  size: 35,
-                )
+                PopupMenuButton<String>(
+                  itemBuilder: (BuildContext context) {
+                    return [PopupMenuItem(value: 'book', child: Text('管理书籍'))];
+                  },
+                  icon: Icon(
+                    Icons.tune,
+                    size: 35,
+                  ),
+                  onSelected: _onMenuSelected,
+                ),
               ],
             )));
   }

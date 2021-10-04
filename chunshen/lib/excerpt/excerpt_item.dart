@@ -1,3 +1,4 @@
+import 'package:chunshen/config.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
@@ -6,47 +7,109 @@ import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/style/index.dart';
 
-class ExcerptCommentItem extends StatelessWidget {
+class ExcerptCommentItem extends StatefulWidget {
+  final ExcerptBean? bean;
   final List<ExcerptCommentBean>? comment;
+  final Function? onCommentDeleted;
 
-  ExcerptCommentItem(this.comment);
+  ExcerptCommentItem(this.bean, this.comment, {this.onCommentDeleted});
+
+  @override
+  _ExcerptCommentItemState createState() => _ExcerptCommentItemState();
+}
+
+class _ExcerptCommentItemState extends State<ExcerptCommentItem> {
+  Offset? _tapPosition;
+
+  _storePosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
+  }
+
+  _deleteComment(BuildContext context, int i) {
+    showNorlmalDialog(context, '提示', '确认删除此评论吗？', '取消', '确认', null, () async {
+      showLoading(context);
+      CSResponse resp = await DeleteModel.deleteComment(
+          widget.bean?.id, widget.comment?[i].id);
+      hideLoading(context);
+      if (CSResponse.success(resp)) {
+        toast('删除成功');
+        setState(() {
+          widget.comment?.removeAt(i);
+        });
+        // widget.onCommentDeleted?.call(widget.comment?[i]);
+      } else {
+        toast('删除失败，请稍后重试～');
+      }
+    });
+  }
+
+  _showCommentMenu(BuildContext context, int i) async {
+    if (_tapPosition != null) {
+      showMenuAtPosition(context, _tapPosition!, [
+        PopupMenuItem(
+          value: 'copy',
+          child: Text("复制"),
+        ),
+        PopupMenuItem(
+          value: 'delete',
+          child: Text("删除"),
+        ),
+      ], onSelected: (value) {
+        if (value == 'delete') {
+          _deleteComment(context, i);
+        } else if (value == 'copy') {
+          copyToClipboard(widget.comment?[i].content);
+        }
+      });
+    }
+  }
+
+  Widget buildItem(BuildContext context, int i) {
+    return GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTapDown: _storePosition,
+        onLongPress: () {
+          _showCommentMenu(context, i);
+        },
+        child: Padding(
+            padding: EdgeInsets.only(left: 10, right: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (i > 0)
+                  Divider(
+                    height: 15,
+                    color: Color(CSColor.gray1),
+                  ),
+                Text(widget.comment?[i].content ?? ''),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      formatTime(widget.comment?[i].time) ?? '',
+                      style: TextStyle(color: Color(CSColor.gray2)),
+                    )
+                  ],
+                )
+              ],
+            )));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return (comment?.length ?? 0) > 0
+    return (widget.comment?.length ?? 0) > 0
         ? Container(
             padding: EdgeInsets.only(top: 10, bottom: 10),
             child: ListView.builder(
               shrinkWrap: true,
               physics: new NeverScrollableScrollPhysics(),
               itemBuilder: (context, i) {
-                return Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (i > 0)
-                          Divider(
-                            height: 15,
-                            color: Color(CSColor.gray1),
-                          ),
-                        Text(comment?[i].content ?? ''),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              formatTime(comment?[i].time) ?? '',
-                              style: TextStyle(color: Color(CSColor.gray2)),
-                            )
-                          ],
-                        )
-                      ],
-                    ));
+                return buildItem(context, i);
               },
-              itemCount: comment?.length ?? 0,
+              itemCount: widget.comment?.length ?? 0,
             ),
             decoration: BoxDecoration(color: Color(CSColor.gray)))
         : Container();
@@ -56,8 +119,9 @@ class ExcerptCommentItem extends StatelessWidget {
 class ExcerptContentItem extends StatefulWidget {
   final ExcerptBean? bean;
   final Function? onCommentAdded;
+  final Function? onExcerptDeleted;
 
-  ExcerptContentItem(this.bean, this.onCommentAdded);
+  ExcerptContentItem(this.bean, this.onCommentAdded, this.onExcerptDeleted);
 
   @override
   State<StatefulWidget> createState() {
@@ -84,6 +148,7 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
       itemBuilder: (BuildContext context) {
         return [
           getPopItem('分享', 'share'),
+          getPopItem('复制', 'copy'),
           getPopItem('评论', 'comment'),
           getPopItem('编辑', 'edit'),
           getPopItem('删除', 'delete'),
@@ -101,15 +166,34 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
     switch (value) {
       case 'share':
         break;
+      case 'copy':
+        copyToClipboard(widget.bean?.excerptContent?.content);
+        break;
       case 'comment':
         triggerCommentInput(true);
         break;
       case 'edit':
+        triggerEdit();
         break;
       case 'delete':
+        triggerDelete();
         break;
       default:
     }
+  }
+
+  triggerDelete() {
+    showNorlmalDialog(context, '提示', '确认删除此文摘吗？', '取消', '确认', null, () async {
+      showLoading(context);
+      CSResponse resp = await DeleteModel.deleteExcerpt(widget.bean?.id);
+      hideLoading(context);
+      if (CSResponse.success(resp)) {
+        toast('删除成功');
+        widget.onExcerptDeleted?.call();
+      } else {
+        toast('删除失败，请稍后重试～');
+      }
+    });
   }
 
   triggerCommentInput(show) {
@@ -118,18 +202,38 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
     });
   }
 
+  triggerEdit() async {
+    ExcerptUploadBean uploadBean =
+        await openPage(context, PAGE_TEXT_INPUT, params: widget.bean);
+    refreshExcerpt(uploadBean);
+  }
+
+  refreshExcerpt(ExcerptUploadBean uploadBean) {
+    setState(() {
+      widget.bean?.excerptContent?.content = uploadBean.content;
+      widget.bean?.tag?.id = uploadBean.tagId;
+      if (!isEmpty(uploadBean.tagName)) {
+        widget.bean?.tag?.content = uploadBean.tagName;
+      }
+      if (!isEmpty(uploadBean.tagImage)) {
+        widget.bean?.tag?.head = uploadBean.tagImage;
+      }
+    });
+  }
+
   uploadComment() async {
     if (isEmpty(comment)) {
       triggerCommentInput(false);
       return;
     }
-    CSResponse response =
+    ExcerptCommentBean? commentBean =
         await CommentModel.uploadNewComment(widget.bean?.id, comment);
-    if (response.status == 0) {
+    if (commentBean != null) {
       toast('提交成功');
       triggerCommentInput(false);
-      widget.onCommentAdded?.call(ExcerptCommentBean.create(
-          comment, DateTime.now().microsecondsSinceEpoch));
+      widget.onCommentAdded?.call(commentBean);
+    } else {
+      toast('提交失败，请稍后重试～');
     }
   }
 
@@ -183,7 +287,12 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
                     fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 5),
-              Text(bean.content ?? ''),
+              GestureDetector(
+                onLongPress: () {
+                  copyToClipboard(bean.content);
+                },
+                child: Text(bean.content ?? ''),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -204,7 +313,8 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
 
 class ExcerptItem extends StatefulWidget {
   final ExcerptBean bean;
-  ExcerptItem(this.bean);
+  final Function? onExcerptDelete;
+  ExcerptItem(this.bean, {this.onExcerptDelete});
 
   @override
   State<StatefulWidget> createState() {
@@ -213,14 +323,20 @@ class ExcerptItem extends StatefulWidget {
 }
 
 class ExcerptItemState extends State<ExcerptItem> {
-  // final ExcerptBean bean;
-
-  // ExcerptItemState(this.bean);
-
   onCommentAdded(ExcerptCommentBean comment) {
     setState(() {
       widget.bean.comment.add(comment);
     });
+  }
+
+  onCommentDeleted(ExcerptCommentBean comment) {
+    setState(() {
+      widget.bean.comment.remove(comment);
+    });
+  }
+
+  onExcerptDeleted() {
+    widget.onExcerptDelete?.call();
   }
 
   @override
@@ -239,14 +355,19 @@ class ExcerptItemState extends State<ExcerptItem> {
                   width: 10,
                 ),
                 Flexible(
-                  child: ExcerptContentItem(bean, onCommentAdded),
+                  child: ExcerptContentItem(
+                      bean, onCommentAdded, onExcerptDeleted),
                 )
               ],
             ),
             SizedBox(height: 15),
             Container(
                 padding: EdgeInsets.only(left: 60),
-                child: ExcerptCommentItem(bean.comment))
+                child: ExcerptCommentItem(
+                  bean,
+                  bean.comment,
+                  onCommentDeleted: onCommentDeleted,
+                ))
           ],
         ));
   }
