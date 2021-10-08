@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/excerpt/excerpt_item.dart';
 
-class ExcerptPage extends StatefulWidget implements IOperationListener {
+class ExcerptPage extends StatefulWidget with IOperationListener {
   final _ExcerptState state = _ExcerptState();
 
   @override
@@ -17,6 +17,11 @@ class ExcerptPage extends StatefulWidget implements IOperationListener {
   @override
   onExcerptUploadFinished() {
     state.forceRefresh();
+  }
+
+  @override
+  onTagChanged() {
+    state.getTagList();
   }
 }
 

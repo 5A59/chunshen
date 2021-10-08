@@ -39,10 +39,9 @@ class TagWidgetState extends State<TagWidget> {
   }
 
   void refresh() async {
-    TagModel.getTagListBean().then((value) {
-      setState(() {
-        tagList = value.list;
-      });
+    TagListBean value = await TagModel.getTagListBean();
+    setState(() {
+      tagList = value.list;
     });
   }
 

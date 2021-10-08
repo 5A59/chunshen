@@ -45,9 +45,17 @@ class _OperationBarState extends State<OperationBar> {
     XFile? image = await _picker.pickImage(source: ImageSource.gallery);
   }
 
+  _openManageTag() async {
+    var res = await openPage(context, PAGE_MANAGE_TAG);
+    if (res == true) {
+      listener?.onTagChanged();
+    }
+  }
+
   _onMenuSelected(String value) {
     switch (value) {
       case 'book':
+        _openManageTag();
         break;
       default:
     }

@@ -1,3 +1,4 @@
+import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/net/index.dart';
@@ -19,7 +20,7 @@ class _AddTagState extends State<AddTagPage> {
       borderRadius: BorderRadius.circular(3),
       borderSide: BorderSide(color: Color(CSColor.gray3)));
 
-  search() async {
+  void _search() async {
     if (content == null) {
       return;
     }
@@ -31,17 +32,18 @@ class _AddTagState extends State<AddTagPage> {
     });
   }
 
-  Widget buildSearchBar() {
+  Widget _buildSearchBar() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
             child: TextField(
-          onEditingComplete: search,
+          onEditingComplete: _search,
           textInputAction: TextInputAction.search,
           cursorColor: Color(CSColor.gray3),
           decoration: InputDecoration(
+            hintText: '输入书名搜索',
             contentPadding:
                 EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
             prefixIcon: Icon(
@@ -61,24 +63,26 @@ class _AddTagState extends State<AddTagPage> {
     );
   }
 
-  addTag(TagBean bean) async {
+  _addTag(TagBean bean, {Function(bool)? callback}) async {
     CSResponse resp = await TagModel.addTag(bean);
     if (CSResponse.success(resp)) {
       toast('添加书籍成功');
+      callback?.call(true);
       finishPage(context, params: true);
     } else {
       toast('添加书籍失败，请稍后重试～');
+      callback?.call(true);
     }
   }
 
-  Widget buildResultItem(TagBean bean) {
+  Widget _buildResultItem(TagBean bean) {
     return GestureDetector(
         onTap: () {
-          addTag(bean);
+          _addTag(bean);
         },
         child: Row(
           children: [
-            Image.network(bean.head ?? '', width: 50, height: 80),
+            CSImage.buildImage(bean.head, 50, 80),
             SizedBox(
               width: 10,
             ),
@@ -94,14 +98,51 @@ class _AddTagState extends State<AddTagPage> {
         ));
   }
 
-  Widget buildSearchResult() {
+  Widget _buildSearchResult() {
     return Expanded(
         child: ListView.builder(
       itemBuilder: (context, i) {
-        return buildResultItem(result[i]);
+        return _buildResultItem(result[i]);
       },
       itemCount: result.length,
     ));
+  }
+
+  void _addTagBySelf() {
+    String name = '';
+    AlertDialog dialog = AlertDialog(
+      title: Text('添加书籍'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            decoration: InputDecoration(hintText: '输入书名'),
+            onChanged: (String value) {
+              name = value;
+            },
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextButton(
+              onPressed: () {
+                if (!isEmpty(name)) {
+                  _addTag(TagBean('', '', name, '', true), callback: (res) {
+                    if (res == true) {
+                      hideDialog(context);
+                    }
+                  });
+                }
+              },
+              child: Text('确认'))
+        ],
+      ),
+    );
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return dialog;
+        });
   }
 
   @override
@@ -110,14 +151,22 @@ class _AddTagState extends State<AddTagPage> {
         appBar: AppBar(
             elevation: 0,
             backgroundColor: Color(CSColor.white),
+            actions: [
+              TextButton(
+                  style: ButtonStyle(
+                      foregroundColor:
+                          MaterialStateProperty.all(Color(CSColor.black))),
+                  onPressed: _addTagBySelf,
+                  child: Text('手动添加'))
+            ],
             title: Text('添加书籍')),
         body: Container(
           padding: EdgeInsets.all(10),
           child: Column(
             children: [
-              buildSearchBar(),
+              _buildSearchBar(),
               SizedBox(height: 10),
-              buildSearchResult()
+              _buildSearchResult()
             ],
           ),
         ));

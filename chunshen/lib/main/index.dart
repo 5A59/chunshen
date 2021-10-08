@@ -5,7 +5,8 @@ import 'package:chunshen/excerpt/index.dart';
 import 'package:chunshen/ramble/index.dart';
 
 abstract class IOperationListener {
-  onExcerptUploadFinished();
+  onExcerptUploadFinished() {}
+  onTagChanged() {}
 }
 
 class MainPage extends StatefulWidget {

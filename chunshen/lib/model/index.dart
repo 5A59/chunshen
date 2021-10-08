@@ -98,6 +98,15 @@ class DeleteModel {
         await httpPost('/deleteExcerpt', body: DeleteBean(id));
     return response;
   }
+  
+  static Future<CSResponse> deleteTag(String? id) async {
+    if (id == null) {
+      return CSResponse.error();
+    }
+    CSResponse response =
+        await httpPost('/deleteTag', body: DeleteBean(id));
+    return response;
+  }
 
   static Future<CSResponse> deleteComment(String? excerptId, String? id) async {
     if (id == null || excerptId == null) {

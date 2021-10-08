@@ -339,3 +339,41 @@ exports.deleteComment = (id) => {
   })
   return defer.promise
 }
+
+exports.deleteTag = (id) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(TAG_TABLE_NAME).deleteOne(
+      { _id: ObjectId(id) },
+      (err, res) => {
+        if (err) {
+          defer.reject(err)
+          db.close()
+          return
+        }
+        defer.resolve()
+        db.close()
+      })
+  })
+  return defer.promise
+}
+
+exports.deleteExcerptByTag = (tagId) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(EXCERPT_TABLE_NAME).deleteMany(
+      { tagId: tagId },
+      (err, res) => {
+        if (err) {
+          defer.reject(err)
+          db.close()
+          return
+        }
+        defer.resolve()
+        db.close()
+      })
+  })
+  return defer.promise
+}

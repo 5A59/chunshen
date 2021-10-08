@@ -7,12 +7,20 @@ openPage(BuildContext context, page, {params}) {
   return Navigator.pushNamed(context, page, arguments: params);
 }
 
+openPageRaw(BuildContext context, Route route) {
+  return Navigator.push(context, route);
+}
+
 finishPage(BuildContext context, {params}) {
   Navigator.pop(context, params);
 }
 
 bool isEmpty(String? content) {
   return content?.isEmpty ?? true;
+}
+
+bool isListEmpty(List? list) {
+  return list == null || list.isEmpty;
 }
 
 showLoading(BuildContext context) {
@@ -30,6 +38,10 @@ showLoading(BuildContext context) {
       return alert;
     },
   );
+}
+
+hideDialog(BuildContext context) {
+  Navigator.pop(context);
 }
 
 hideLoading(BuildContext context) {

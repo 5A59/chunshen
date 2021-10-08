@@ -8,8 +8,10 @@ class ExcerptUploadBean {
   // 不给后端用，客户端用
   String? tagName;
   String? tagImage;
+  List<String>? image;
 
-  ExcerptUploadBean(this.tagId, this.content, this.comment, {this.id});
+  ExcerptUploadBean(this.tagId, this.content, this.comment,
+      {this.id, this.image});
 
   Map toJson() {
     Map map = Map();
@@ -17,6 +19,7 @@ class ExcerptUploadBean {
     map['content'] = content;
     map['comment'] = comment;
     map['tagId'] = tagId;
+    map['image'] = image;
     return map;
   }
 }
@@ -36,6 +39,7 @@ class ExcerptBean {
   TagBean? tag;
   ExcerptContentBean? excerptContent;
   List<ExcerptCommentBean> comment = [];
+  List<String>? image = [];
 
   ExcerptBean.fromJson(Map<String, dynamic> json) {
     this.id = json['_id'];
@@ -45,6 +49,7 @@ class ExcerptBean {
             ?.map((e) => ExcerptCommentBean.fromJson(e))
             .toList() ??
         [];
+    this.image = (json['image'] as List?)?.map((e) => e as String).toList();
   }
 }
 
@@ -107,5 +112,4 @@ class CommentDeleteBean extends DeleteBean {
     map['excerptId'] = excerptId;
     return map;
   }
-
 }

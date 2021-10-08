@@ -1,3 +1,7 @@
+import 'dart:math';
+
+import 'package:chunshen/base/widget/image/big_image.dart';
+import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/config.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
@@ -264,11 +268,36 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
           Row(
             children: [
               Spacer(),
+              TextButton(
+                  onPressed: () {
+                    triggerCommentInput(false);
+                  },
+                  child: Text('取消')),
               TextButton(onPressed: uploadComment, child: Text('提交'))
             ],
           )
         ],
       ),
+    );
+  }
+
+  bool hasImage(ExcerptBean? bean) {
+    return bean?.image != null && (bean?.image!.length ?? 0) > 0;
+  }
+
+  Widget buildImage(List<String> image) {
+    return Wrap(
+      spacing: 10,
+      children: [
+        ...image
+            .map((e) => GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  BigImage.openBigImage(context, image);
+                },
+                child: CSImage.buildImage(e, 100, 100)))
+            .toList()
+      ],
     );
   }
 
@@ -303,6 +332,9 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
                   buildMoreMenu()
                 ],
               ),
+              if (hasImage(widget.bean)) SizedBox(height: 15),
+              if (hasImage(widget.bean)) buildImage(widget.bean?.image ?? []),
+              if (hasImage(widget.bean)) SizedBox(height: 15),
               showCommentInput ? buildCommentInput() : Container()
             ],
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,7 +382,7 @@ class ExcerptItemState extends State<ExcerptItem> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(bean.tag?.head ?? '', width: 50, height: 80),
+                CSImage.buildImage(bean.tag?.head, 50, 80),
                 SizedBox(
                   width: 10,
                 ),

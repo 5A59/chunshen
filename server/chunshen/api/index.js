@@ -50,7 +50,7 @@ const updateExcerpt = (req, res, next) => {
 }
 
 exports.uploadExcerpt = (req, res, next) => {
-  const { content, comment, tagId, id } = req.body
+  const { content, comment, tagId, id, image } = req.body
   if (id) {
     updateExcerpt(req, res, next);
     return;
@@ -68,6 +68,7 @@ exports.uploadExcerpt = (req, res, next) => {
             time: Date.now(),
             content
           },
+          image,
           comment: [id]
         }
         return db.uploadExcerpt(excerpt)
@@ -85,6 +86,7 @@ exports.uploadExcerpt = (req, res, next) => {
         time: Date.now(),
         content
       },
+      image,
       comment: []
     }
     db.uploadExcerpt(excerpt)
@@ -153,11 +155,15 @@ exports.addTag = (req, res, next) => {
   db.addTag(tag)
     .then(() => {
       res.send(utils.getSuccessRes({}))
-      addBook(book)
+      if (!self) {
+        addBook(book)
+      }
     })
     .catch((err) => {
       next(utils.getFailRes(err))
-      addBook(book)
+      if (!self) {
+        addBook(book)
+      }
     })
 }
 
@@ -168,6 +174,21 @@ exports.deleteComment = (req, res, next) => {
     return;
   }
   Q.all([db.deleteComment(id), db.removeCommentInExcerpt(excerptId, id)])
+    .then(() => {
+      res.send(utils.getSuccessRes({}))
+    })
+    .catch((err) => {
+      next(utils.getFailRes(err))
+    })
+}
+
+exports.deleteTag = (req, res, next) => {
+  const { id } = req.body
+  if (!id) {
+    next(utils.getFailRes('id is null'))
+    return;
+  }
+  Q.all([db.deleteTag(id), db.deleteExcerptByTag(id)])
     .then(() => {
       res.send(utils.getSuccessRes({}))
     })

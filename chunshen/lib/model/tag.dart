@@ -6,7 +6,7 @@ class TagBean {
   String? publish;
   bool self = false;
 
-  TagBean(this.id, this.head, this.content, this.publish);
+  TagBean(this.id, this.head, this.content, this.publish, [this.self = false]);
 
   TagBean.fromJson(Map<String, dynamic> json) {
     this.id = json['id'];

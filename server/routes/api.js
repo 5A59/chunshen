@@ -5,6 +5,7 @@ const { getExcerpts,
 	getRamble,
 	getTags,
 	addTag,
+	deleteTag,
 	uploadExcerpt,
 	deleteExcerpt,
 	uploadComment,
@@ -19,5 +20,6 @@ router.post('/comment', uploadComment)
 router.post('/deleteExcerpt', deleteExcerpt)
 router.post('/tag', addTag)
 router.post('/deleteComment', deleteComment)
+router.post('/deleteTag', deleteTag)
 
 module.exports = router;

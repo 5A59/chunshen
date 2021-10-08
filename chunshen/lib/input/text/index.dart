@@ -7,6 +7,7 @@ import 'package:chunshen/net/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/tag/index.dart';
 import 'package:chunshen/utils/index.dart';
+import 'package:chunshen/utils/oss.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -69,9 +70,15 @@ class _TextInputState extends State<TextInputPage> {
       return;
     }
     showLoading(context);
+    List<String> images = [];
+    if (!isListEmpty(imageList)) {
+      images = await Future.wait(
+          imageList.map((e) => UploadOss.upload(e.path)).toList());
+    }
     ExcerptUploadBean bean = update
-        ? ExcerptUploadBean(tagId, content, comment, id: this.bean?.id)
-        : ExcerptUploadBean(tagId, content, comment);
+        ? ExcerptUploadBean(tagId, content, comment,
+            id: this.bean?.id, image: images)
+        : ExcerptUploadBean(tagId, content, comment, image: images);
     CSResponse resp = await ExcerptModel.uploadNewExcerpt(bean);
     hideLoading(context);
     if (resp.status == 0) {
