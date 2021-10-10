@@ -91,10 +91,6 @@ formatTime(int? time) {
   }
 }
 
-Object? getArgs(BuildContext context) {
-  return ModalRoute.of(context)!.settings.arguments;
-}
-
 void showMenuAtPosition(
     BuildContext context, Offset position, List<PopupMenuItem> items,
     {Function? onCanceled, Function? onSelected}) {

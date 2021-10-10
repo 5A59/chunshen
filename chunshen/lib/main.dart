@@ -21,12 +21,24 @@ class MyApp extends StatelessWidget {
           primaryColor: Color(CSColor.white)),
       home: MyHomePage(),
       initialRoute: 'home',
-      routes: {
-        PAGE_HOME: (context) => MyHomePage(),
-        PAGE_TEXT_INPUT: (context) => TextInputPage(),
-        PAGE_ADD_TAG: (context) => AddTagPage(),
-        PAGE_MANAGE_TAG: (context) => ManageTagPage(),
+      onGenerateRoute: (RouteSettings settings) {
+        Map<String, WidgetBuilder> routes = <String, WidgetBuilder>{
+          PAGE_HOME: (context) => MyHomePage(),
+          PAGE_TEXT_INPUT: (context) => TextInputPage(
+                settings: settings,
+              ),
+          PAGE_ADD_TAG: (context) => AddTagPage(),
+          PAGE_MANAGE_TAG: (context) => ManageTagPage(),
+        };
+        WidgetBuilder builder = routes[settings.name]!;
+        return MaterialPageRoute(builder: (ctx) => builder(ctx));
       },
+      // routes: {
+      //   PAGE_HOME: (context) => MyHomePage(),
+      //   PAGE_TEXT_INPUT: (context) => TextInputPage(),
+      //   PAGE_ADD_TAG: (context) => AddTagPage(),
+      //   PAGE_MANAGE_TAG: (context) => ManageTagPage(),
+      // },
     );
   }
 }

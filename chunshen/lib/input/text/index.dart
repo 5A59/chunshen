@@ -1,5 +1,5 @@
-import 'dart:io';
-
+import 'package:chunshen/base/widget/image/big_image.dart';
+import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
@@ -13,6 +13,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TextInputPage extends StatefulWidget {
+  RouteSettings? settings;
+
+  TextInputPage({this.settings});
+
   @override
   State<StatefulWidget> createState() {
     return _TextInputState();
@@ -20,24 +24,32 @@ class TextInputPage extends StatefulWidget {
 }
 
 class _TextInputState extends State<TextInputPage> {
+  static const double IMAGE_SIZE = 100;
+
   InputBorder border = InputBorder.none;
   String? content = '';
   String? comment = '';
   String? tagId = '';
-  List<XFile> imageList = [];
+  List<String> imageList = [];
   ImagePicker _picker = ImagePicker();
-  final double IMAGE_SIZE = 100;
   // for update
   ExcerptBean? bean;
   bool update = false;
   TagBean? selectedTag;
 
+  @override
+  void initState() {
+    super.initState();
+    handleArgs();
+  }
+
   handleArgs() {
-    bean = getArgs(context) as ExcerptBean?;
+    bean = widget.settings?.arguments as ExcerptBean?;
     if (bean != null) {
       tagId = bean?.tag?.id;
       content = bean?.excerptContent?.content;
-      update = true;
+      update = bean?.update ?? false;
+      imageList.addAll(bean?.image ?? []);
     }
   }
 
@@ -72,8 +84,12 @@ class _TextInputState extends State<TextInputPage> {
     showLoading(context);
     List<String> images = [];
     if (!isListEmpty(imageList)) {
-      images = await Future.wait(
-          imageList.map((e) => UploadOss.upload(e.path)).toList());
+      images = await Future.wait(imageList.map((e) {
+        if (e.startsWith('http')) {
+          return Future.value(e);
+        }
+        return UploadOss.upload(e);
+      }).toList());
     }
     ExcerptUploadBean bean = update
         ? ExcerptUploadBean(tagId, content, comment,
@@ -83,7 +99,7 @@ class _TextInputState extends State<TextInputPage> {
     hideLoading(context);
     if (resp.status == 0) {
       // success
-      Fluttertoast.showToast(msg: '上传成功');
+      Fluttertoast.showToast(msg: update ? '更新成功' : '上传成功');
       bean.tagImage = selectedTag?.head;
       bean.tagName = selectedTag?.content;
       finishPage(context, params: bean);
@@ -106,7 +122,7 @@ class _TextInputState extends State<TextInputPage> {
     XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
-        imageList.add(image);
+        imageList.add(image.path);
       });
     }
   }
@@ -128,12 +144,30 @@ class _TextInputState extends State<TextInputPage> {
       child: Wrap(
         spacing: 10,
         children: [
-          ...imageList.map((e) => Image.file(
-                File(e.path),
-                width: IMAGE_SIZE,
-                height: IMAGE_SIZE,
-                fit: BoxFit.cover,
-              )),
+          ...imageList.map((e) => GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                BigImagePage.openBigImage(context, imageList,
+                    initialPage: imageList.indexOf(e));
+              },
+              child: Stack(
+                children: [
+                  CSImage.buildImage(e, IMAGE_SIZE, IMAGE_SIZE),
+                  Positioned(
+                      right: 0,
+                      child: GestureDetector(
+                        child: Icon(
+                          Icons.delete,
+                          color: Color(CSColor.white),
+                        ),
+                        onTap: () {
+                          setState(() {
+                            imageList.remove(e);
+                          });
+                        },
+                      ))
+                ],
+              ))),
           if (imageList.length <= 2) buildAddButton()
         ],
       ),
@@ -142,7 +176,6 @@ class _TextInputState extends State<TextInputPage> {
 
   @override
   Widget build(BuildContext context) {
-    handleArgs();
     return Scaffold(
         appBar: AppBar(
             elevation: 0,

@@ -224,7 +224,8 @@ exports.updateExcerpt = (excerpt) => {
       {
         $set: {
           tagId: excerpt.tagId,
-          'content.content': excerpt.content
+          'content.content': excerpt.content,
+          image: excerpt.image
         }
       },
       {

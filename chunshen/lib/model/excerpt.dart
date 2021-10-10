@@ -40,6 +40,10 @@ class ExcerptBean {
   ExcerptContentBean? excerptContent;
   List<ExcerptCommentBean> comment = [];
   List<String>? image = [];
+  bool update = false;
+
+  ExcerptBean(this.id, this.tag, this.excerptContent, this.comment, this.image,
+      this.update);
 
   ExcerptBean.fromJson(Map<String, dynamic> json) {
     this.id = json['_id'];

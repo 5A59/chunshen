@@ -1,5 +1,6 @@
 import 'package:chunshen/config.dart';
 import 'package:chunshen/main/index.dart';
+import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,6 @@ class _OperationBarState extends State<OperationBar> {
 
   _openTextInput() async {
     var res = await openPage(context, PAGE_TEXT_INPUT);
-    setState(() {});
     if (res != null) {
       listener?.onExcerptUploadFinished();
     }
@@ -43,6 +43,13 @@ class _OperationBarState extends State<OperationBar> {
   _openImage() async {
     ImagePicker _picker = ImagePicker();
     XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      ExcerptBean bean = ExcerptBean(null, null, null, [], [image.path], false);
+      var res = await openPage(context, PAGE_TEXT_INPUT, params: bean);
+      if (res != null) {
+        listener?.onExcerptUploadFinished();
+      }
+    }
   }
 
   _openManageTag() async {

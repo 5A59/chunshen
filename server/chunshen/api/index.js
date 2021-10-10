@@ -34,11 +34,12 @@ exports.getTags = (req, res, next) => {
 }
 
 const updateExcerpt = (req, res, next) => {
-  const { content, tagId, id } = req.body
+  const { content, tagId, id, image } = req.body
   const excerpt = {
     id,
     tagId,
-    content
+    content,
+    image
   }
   db.updateExcerpt(excerpt)
     .then(() => {

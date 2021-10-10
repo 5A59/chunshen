@@ -207,15 +207,19 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
   }
 
   triggerEdit() async {
-    ExcerptUploadBean uploadBean =
+    widget.bean?.update = true;
+    ExcerptUploadBean? uploadBean =
         await openPage(context, PAGE_TEXT_INPUT, params: widget.bean);
-    refreshExcerpt(uploadBean);
+    if (uploadBean != null) {
+      refreshExcerpt(uploadBean);
+    }
   }
 
   refreshExcerpt(ExcerptUploadBean uploadBean) {
     setState(() {
       widget.bean?.excerptContent?.content = uploadBean.content;
       widget.bean?.tag?.id = uploadBean.tagId;
+      widget.bean?.image = uploadBean.image;
       if (!isEmpty(uploadBean.tagName)) {
         widget.bean?.tag?.content = uploadBean.tagName;
       }
@@ -293,7 +297,8 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
             .map((e) => GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
-                  BigImage.openBigImage(context, image);
+                  BigImagePage.openBigImage(context, image,
+                      initialPage: image.indexOf(e));
                 },
                 child: CSImage.buildImage(e, 100, 100)))
             .toList()
