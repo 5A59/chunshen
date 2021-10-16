@@ -1,9 +1,13 @@
+import 'dart:io';
+
+import 'package:chunshen/base/ocr/index.dart';
 import 'package:chunshen/config.dart';
 import 'package:chunshen/main/index.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 class OperationBar extends StatefulWidget {
@@ -43,13 +47,45 @@ class _OperationBarState extends State<OperationBar> {
   _openImage() async {
     ImagePicker _picker = ImagePicker();
     XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
     if (image != null) {
-      ExcerptBean bean = ExcerptBean(null, null, null, [], [image.path], false);
-      var res = await openPage(context, PAGE_TEXT_INPUT, params: bean);
-      if (res != null) {
-        listener?.onExcerptUploadFinished();
+      File? file = await ImageCropper.cropImage(
+          sourcePath: image.path,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio3x2,
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9
+          ],
+          androidUiSettings: AndroidUiSettings(
+              toolbarTitle: 'OCR',
+              toolbarColor: Colors.deepOrange,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false),
+          iosUiSettings: IOSUiSettings(
+            minimumAspectRatio: 1.0,
+          ));
+      if (file != null) {
+        showLoading(context);
+        String res = await OcrUtils().ocr(file);
+        hideLoading(context);
+        ExcerptBean bean = ExcerptBean(
+            null, null, ExcerptContentBean(res, null), [], [], false);
+        var pageRes = await openPage(context, PAGE_TEXT_INPUT, params: bean);
+        if (pageRes != null) {
+          listener?.onExcerptUploadFinished();
+        }
       }
     }
+    // if (image != null) {
+    //   ExcerptBean bean = ExcerptBean(null, null, null, [], [image.path], false);
+    //   var res = await openPage(context, PAGE_TEXT_INPUT, params: bean);
+    //   if (res != null) {
+    //     listener?.onExcerptUploadFinished();
+    //   }
+    // }
   }
 
   _openManageTag() async {

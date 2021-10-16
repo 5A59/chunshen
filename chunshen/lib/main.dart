@@ -1,3 +1,4 @@
+import 'package:chunshen/base/widget/text_selector/index.dart';
 import 'package:chunshen/config.dart';
 import 'package:chunshen/input/text/index.dart';
 import 'package:chunshen/style/index.dart';
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
               ),
           PAGE_ADD_TAG: (context) => AddTagPage(),
           PAGE_MANAGE_TAG: (context) => ManageTagPage(),
+          PAGE_TEXT_SELECTOR: (context) => TextSelectorPage(),
         };
         WidgetBuilder builder = routes[settings.name]!;
         return MaterialPageRoute(builder: (ctx) => builder(ctx));

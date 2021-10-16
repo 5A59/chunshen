@@ -61,6 +61,8 @@ class ExcerptContentBean {
   String? content;
   int? time;
 
+  ExcerptContentBean(this.content, this.time);
+
   ExcerptContentBean.fromJson(Map<String, dynamic> json) {
     this.content = json['content'];
     this.time = json['time'];

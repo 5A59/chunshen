@@ -16,6 +16,13 @@ exports.getFailRes = (msg) => {
     }
 }
 
+exports.getUnLoginRes = (msg) => {
+    return {
+        status: 2,
+        msg: msg
+    }
+}
+
 exports.versionCompare = (v1, v2) => { //v1比较新时返回1,v1和v2相同是返回0,v2比较新时返回-1;
     var arr1 = v1.toLowerCase().split('.');
     var arr2 = v2.toLowerCase().split('.');
