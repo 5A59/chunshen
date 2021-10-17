@@ -79,13 +79,6 @@ class _OperationBarState extends State<OperationBar> {
         }
       }
     }
-    // if (image != null) {
-    //   ExcerptBean bean = ExcerptBean(null, null, null, [], [image.path], false);
-    //   var res = await openPage(context, PAGE_TEXT_INPUT, params: bean);
-    //   if (res != null) {
-    //     listener?.onExcerptUploadFinished();
-    //   }
-    // }
   }
 
   _openManageTag() async {
@@ -95,10 +88,20 @@ class _OperationBarState extends State<OperationBar> {
     }
   }
 
+  _openLogin() async {
+    var res = await openPage(context, PAGE_LOGIN);
+    // if (res == true) {
+    //   listener?.onTagChanged();
+    // }
+  }
+
   _onMenuSelected(String value) {
     switch (value) {
       case 'book':
         _openManageTag();
+        break;
+      case 'login':
+        _openLogin();
         break;
       default:
     }
@@ -119,7 +122,10 @@ class _OperationBarState extends State<OperationBar> {
                 Expanded(child: SizedBox()),
                 PopupMenuButton<String>(
                   itemBuilder: (BuildContext context) {
-                    return [PopupMenuItem(value: 'book', child: Text('管理书籍'))];
+                    return [
+                      PopupMenuItem(value: 'book', child: Text('管理书籍')),
+                      PopupMenuItem(value: 'login', child: Text('登录'))
+                    ];
                   },
                   icon: Icon(
                     Icons.tune,

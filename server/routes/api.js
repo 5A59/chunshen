@@ -1,7 +1,8 @@
 
 var express = require('express');
 var router = express.Router();
-const { getExcerpts,
+const {
+	getExcerpts,
 	getRamble,
 	getTags,
 	addTag,

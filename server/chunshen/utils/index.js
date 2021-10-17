@@ -3,7 +3,7 @@ let dayjs = require('dayjs')
 
 exports.getSuccessRes = (data = '') => {
     return {
-        status: 0,
+        _status: 0,
         msg: 'success',
         data: data
     }
@@ -11,15 +11,24 @@ exports.getSuccessRes = (data = '') => {
 
 exports.getFailRes = (msg) => {
     return {
-        status: 1,
+        _status: 1,
         msg: msg
     }
 }
 
-exports.getUnLoginRes = (msg) => {
+exports.getUnLoginRes = () => {
     return {
-        status: 2,
-        msg: msg
+        _status: 2,
+        msg: 'unlogin',
+        data: {}
+    }
+}
+
+exports.getLoginRes = () => {
+    return {
+        _status: 0,
+        msg: 'login success',
+        data: {}
     }
 }
 

@@ -1,4 +1,5 @@
 import 'package:chunshen/bar/index.dart';
+import 'package:chunshen/net/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/excerpt/index.dart';
@@ -11,38 +12,54 @@ abstract class IOperationListener {
 
 class MainPage extends StatefulWidget {
   @override
-  MainState createState() => MainState();
+  _MainState createState() => _MainState();
 }
 
-class MainState extends State<MainPage> {
+class _MainState extends State<MainPage> {
   ExcerptPage excerptPage = ExcerptPage();
   RamblePage ramblePage = RamblePage();
+  bool inited = false;
+
+  @override
+  void initState() {
+    initNet().then((value) {
+      setState(() {
+        inited = true;
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(text: '书摘'),
-              Tab(text: '漫步'),
-            ],
-            indicatorSize: TabBarIndicatorSize.label,
-            indicatorColor: Colors.black,
-            labelColor: Colors.black,
-            unselectedLabelColor: Color(CSColor.gray3),
-          ),
-          Expanded(child: TabBarView(children: [excerptPage, ramblePage])),
-          Divider(
-            height: 1,
-            thickness: 1,
-          ),
-          OperationBar(excerptPage,)
-        ],
-      ),
-    );
+    return inited
+        ? DefaultTabController(
+            length: 2,
+            child: Column(
+              children: [
+                TabBar(
+                  isScrollable: true,
+                  tabs: [
+                    Tab(text: '书摘'),
+                    Tab(text: '漫步'),
+                  ],
+                  indicatorSize: TabBarIndicatorSize.label,
+                  indicatorColor: Colors.black,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Color(CSColor.gray3),
+                ),
+                Expanded(
+                    child: TabBarView(children: [excerptPage, ramblePage])),
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                ),
+                OperationBar(
+                  excerptPage,
+                )
+              ],
+            ),
+          )
+        : Container();
   }
 }

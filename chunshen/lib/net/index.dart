@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../config.dart';
 
@@ -12,6 +15,17 @@ const URL = '';
 var _options = BaseOptions(baseUrl: DEBUG ? DEBUG_URL : URL);
 
 Dio _dio = Dio(_options);
+
+Future<bool> initNet() {
+  return Future<bool>(() async {
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    var cj = PersistCookieJar(
+        ignoreExpires: true,
+        storage: FileStorage(appDocDir.path + "/.cookies/"));
+    _dio.interceptors.add(CookieManager(cj));
+    return true;
+  });
+}
 
 class CSResponse {
   int status = 0;
@@ -42,7 +56,7 @@ Future<CSResponse> httpGet(String path, {Map<String, dynamic>? query}) async {
   Response response = await _dio.get(path, queryParameters: query);
   Map<String, dynamic> data = response.data;
   CSResponse resp =
-      CSResponse._(data['status'], data['msg'], jsonEncode(data['data']));
+      CSResponse._(data['_status'], data['msg'], jsonEncode(data['data']));
   return resp;
 }
 
@@ -56,7 +70,7 @@ Future<CSResponse> httpPost(String path,
         data: body);
     Map<String, dynamic> data = response.data;
     CSResponse resp =
-        CSResponse._(data['status'], data['msg'], jsonEncode(data['data']));
+        CSResponse._(data['_status'], data['msg'], jsonEncode(data['data']));
     return resp;
   } catch (e) {
     return CSResponse._(1, e.toString(), '');

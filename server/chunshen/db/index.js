@@ -10,6 +10,8 @@ const TAG_TABLE_NAME = 'tag'
 const COMMENT_TABLE_NAME = 'comment'
 const BOOK_TABLE_NAME = 'book'
 
+const USER_TABLE_NAME = 'user'
+
 const COUNT_LIMIT = 5
 
 function reformatTag(tag) {
@@ -69,9 +71,14 @@ function loopUpComment() {
 }
 
 // 按页获取书摘
-exports.getExcerpts = (page, tags) => {
+exports.getExcerpts = (session, page, tags) => {
   let defer = Q.defer()
+  if (!session || !session.username) {
+    defer.resolve()
+    return defer.promise
+  }
   let query = tags && tags.length > 0 ? { 'tagId': { $in: tags } } : {}
+  query.username = session.username
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME)
@@ -106,7 +113,7 @@ exports.getExcerpts = (page, tags) => {
 }
 
 // 获取漫步消息，随机取 20 条数据
-exports.getRamble = () => {
+exports.getRamble = (session) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
@@ -131,12 +138,14 @@ exports.getRamble = () => {
 }
 
 // 获取书
-exports.getTags = () => {
+exports.getTags = (session) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(TAG_TABLE_NAME)
-      .find({})
+      .find({
+        username: session?.username ?? ''
+      })
       .sort({
         'time': -1
       })
@@ -156,8 +165,9 @@ exports.getTags = () => {
   return defer.promise
 }
 
-exports.addTag = (tag) => {
+exports.addTag = (session, tag) => {
   let defer = Q.defer()
+  tag.username = session?.username ?? ''
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(TAG_TABLE_NAME).insertOne(tag, (err, res) => {
@@ -173,7 +183,7 @@ exports.addTag = (tag) => {
   return defer.promise
 }
 
-exports.addBook = (book) => {
+exports.addBook = (session, book) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
@@ -198,8 +208,9 @@ exports.addBook = (book) => {
   return defer.promise
 }
 
-exports.uploadExcerpt = (excerpt) => {
+exports.uploadExcerpt = (session, excerpt) => {
   let defer = Q.defer()
+  excerpt.username = session?.username ?? ''
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME).insertOne(excerpt, (err, res) => {
@@ -215,8 +226,9 @@ exports.uploadExcerpt = (excerpt) => {
   return defer.promise
 }
 
-exports.updateExcerpt = (excerpt) => {
+exports.updateExcerpt = (session, excerpt) => {
   let defer = Q.defer()
+  excerpt.username = session?.username ?? ''
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME).updateOne(
@@ -244,12 +256,12 @@ exports.updateExcerpt = (excerpt) => {
   return defer.promise
 }
 
-exports.deleteExcerpt = (id) => {
+exports.deleteExcerpt = (session, id) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME).deleteOne(
-      { _id: ObjectId(id) },
+      { _id: ObjectId(id), username: session?.username ?? '' },
       (err, res) => {
         if (err) {
           defer.reject(err)
@@ -263,13 +275,13 @@ exports.deleteExcerpt = (id) => {
   return defer.promise
 }
 
-exports.insertCommentInExcerpt = (excerptId, commentId) => {
+exports.insertCommentInExcerpt = (session, excerptId, commentId) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME)
       .updateOne(
-        { _id: ObjectId(excerptId) },
+        { _id: ObjectId(excerptId), username: session?.username ?? '' },
         { $push: { 'comment': commentId } },
         (err, res) => {
           if (err) {
@@ -284,13 +296,13 @@ exports.insertCommentInExcerpt = (excerptId, commentId) => {
   return defer.promise
 }
 
-exports.removeCommentInExcerpt = (excerptId, commentId) => {
+exports.removeCommentInExcerpt = (session, excerptId, commentId) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME)
       .updateOne(
-        { _id: ObjectId(excerptId) },
+        { _id: ObjectId(excerptId), username: session?.username ?? '' },
         { $pull: { 'comment': commentId } },
         (err, res) => {
           if (err) {
@@ -305,8 +317,9 @@ exports.removeCommentInExcerpt = (excerptId, commentId) => {
   return defer.promise
 }
 
-exports.uploadComment = (comment) => {
+exports.uploadComment = (session, comment) => {
   let defer = Q.defer()
+  comment.username = session?.username ?? ''
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(COMMENT_TABLE_NAME).insertOne(comment, (err, res) => {
@@ -322,12 +335,12 @@ exports.uploadComment = (comment) => {
   return defer.promise
 }
 
-exports.deleteComment = (id) => {
+exports.deleteComment = (session, id) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(COMMENT_TABLE_NAME).deleteOne(
-      { _id: ObjectId(id) },
+      { _id: ObjectId(id), username: session?.username ?? '' },
       (err, res) => {
         if (err) {
           defer.reject(err)
@@ -341,12 +354,12 @@ exports.deleteComment = (id) => {
   return defer.promise
 }
 
-exports.deleteTag = (id) => {
+exports.deleteTag = (session, id) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(TAG_TABLE_NAME).deleteOne(
-      { _id: ObjectId(id) },
+      { _id: ObjectId(id), username: session?.username ?? '' },
       (err, res) => {
         if (err) {
           defer.reject(err)
@@ -360,12 +373,12 @@ exports.deleteTag = (id) => {
   return defer.promise
 }
 
-exports.deleteExcerptByTag = (tagId) => {
+exports.deleteExcerptByTag = (session, tagId) => {
   let defer = Q.defer()
   MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
     let dbo = db.db(DB_NAME)
     dbo.collection(EXCERPT_TABLE_NAME).deleteMany(
-      { tagId: tagId },
+      { tagId: tagId, username: session?.username ?? '' },
       (err, res) => {
         if (err) {
           defer.reject(err)
@@ -375,6 +388,50 @@ exports.deleteExcerptByTag = (tagId) => {
         defer.resolve()
         db.close()
       })
+  })
+  return defer.promise
+}
+
+exports.getUser = (username) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(USER_TABLE_NAME)
+      .findOne({
+        username
+      }, (err, res) => {
+        if (res) {
+          defer.resolve(res)
+        } else {
+          defer.resolve()
+        }
+        db.close()
+      })
+  })
+  return defer.promise
+}
+
+exports.addUser = (user) => {
+  let defer = Q.defer()
+  MongoClient.connect(URL, { useUnifiedTopology: true }, (err, db) => {
+    let dbo = db.db(DB_NAME)
+    dbo.collection(USER_TABLE_NAME)
+      .updateOne(user,
+        {
+          $set: {}
+        },
+        {
+          upsert: true
+        },
+        (err, res) => {
+          if (err) {
+            defer.resolve()
+            db.close
+            return
+          }
+          defer.resolve(user)
+          db.close()
+        })
   })
   return defer.promise
 }

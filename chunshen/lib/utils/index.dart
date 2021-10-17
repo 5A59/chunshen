@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 openPage(BuildContext context, page, {params}) {
   return Navigator.pushNamed(context, page, arguments: params);
@@ -117,4 +119,10 @@ void copyToClipboard(content, {bool showToast = true}) {
   if (showToast) {
     toast('已复制到剪切板');
   }
+}
+
+String generateMd5(String data) {
+  var content = new Utf8Encoder().convert(data);
+  var digest = md5.convert(content);
+  return digest.toString();
 }

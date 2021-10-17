@@ -4,7 +4,7 @@ const Q = require('q')
 
 exports.getExcerpts = (req, res, next) => {
   const { page, tags = '[]' } = req.query
-  db.getExcerpts(page, JSON.parse(tags))
+  db.getExcerpts(req.session, page, JSON.parse(tags))
     .then((excerpts) => {
       res.send(utils.getSuccessRes({ data: excerpts }))
     })
@@ -14,7 +14,7 @@ exports.getExcerpts = (req, res, next) => {
 }
 
 exports.getRamble = (req, res, next) => {
-  db.getRamble()
+  db.getRamble(req.session)
     .then((excerpts) => {
       res.send(utils.getSuccessRes({ data: excerpts }))
     })
@@ -24,7 +24,7 @@ exports.getRamble = (req, res, next) => {
 }
 
 exports.getTags = (req, res, next) => {
-  db.getTags()
+  db.getTags(req.session)
     .then((tags) => {
       res.send(utils.getSuccessRes({ data: tags }))
     })
@@ -41,7 +41,7 @@ const updateExcerpt = (req, res, next) => {
     content,
     image
   }
-  db.updateExcerpt(excerpt)
+  db.updateExcerpt(req.session, excerpt)
     .then(() => {
       res.send(utils.getSuccessRes({}))
     })
@@ -61,7 +61,7 @@ exports.uploadExcerpt = (req, res, next) => {
       content: comment,
       time: Date.now()
     }
-    db.uploadComment(commentObj)
+    db.uploadComment(req.session, commentObj)
       .then((id) => {
         const excerpt = {
           tagId,
@@ -90,7 +90,7 @@ exports.uploadExcerpt = (req, res, next) => {
       image,
       comment: []
     }
-    db.uploadExcerpt(excerpt)
+    db.uploadExcerpt(req.session, excerpt)
       .then(() => {
         res.send(utils.getSuccessRes({}))
       })
@@ -107,7 +107,7 @@ exports.uploadComment = (req, res, next) => {
     content,
     time: Date.now()
   }
-  db.uploadComment(comment)
+  db.uploadComment(req.session, comment)
     .then((comment) => {
       return db.insertCommentInExcerpt(excerptId, comment._id.toString())
     })
@@ -125,7 +125,7 @@ exports.deleteExcerpt = (req, res, next) => {
     next(utils.getFailRes(err))
     return
   }
-  db.deleteExcerpt(id)
+  db.deleteExcerpt(req.session, id)
     .then(() => {
       res.send(utils.getSuccessRes({}))
     })
@@ -153,7 +153,7 @@ exports.addTag = (req, res, next) => {
   const book = {
     head, content, publish
   }
-  db.addTag(tag)
+  db.addTag(req.session, tag)
     .then(() => {
       res.send(utils.getSuccessRes({}))
       if (!self) {
@@ -174,7 +174,7 @@ exports.deleteComment = (req, res, next) => {
     next(utils.getFailRes('excerptId or id is null'))
     return;
   }
-  Q.all([db.deleteComment(id), db.removeCommentInExcerpt(excerptId, id)])
+  Q.all([db.deleteComment(req.session, id), db.removeCommentInExcerpt(req.session, excerptId, id)])
     .then(() => {
       res.send(utils.getSuccessRes({}))
     })
@@ -189,7 +189,7 @@ exports.deleteTag = (req, res, next) => {
     next(utils.getFailRes('id is null'))
     return;
   }
-  Q.all([db.deleteTag(id), db.deleteExcerptByTag(id)])
+  Q.all([db.deleteTag(req.session, id), db.deleteExcerptByTag(req.session, id)])
     .then(() => {
       res.send(utils.getSuccessRes({}))
     })
