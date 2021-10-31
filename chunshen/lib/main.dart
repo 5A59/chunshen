@@ -5,6 +5,7 @@ import 'package:chunshen/style/index.dart';
 import 'package:chunshen/tag/add_tag/index.dart';
 import 'package:chunshen/tag/manage_tag/index.dart';
 import 'package:chunshen/user/login/index.dart';
+import 'package:chunshen/user/login/info/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/main/index.dart';
 
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
           PAGE_MANAGE_TAG: (context) => ManageTagPage(),
           PAGE_TEXT_SELECTOR: (context) => TextSelectorPage(),
           PAGE_LOGIN: (context) => LoginPage(),
+          PAGE_USER_INFO: (context) => UserInfoPage(),
         };
         WidgetBuilder builder = routes[settings.name]!;
         return MaterialPageRoute(builder: (ctx) => builder(ctx));

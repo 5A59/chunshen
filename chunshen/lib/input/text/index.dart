@@ -1,5 +1,6 @@
 import 'package:chunshen/base/widget/image/big_image.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
+import 'package:chunshen/global/index.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
@@ -84,12 +85,16 @@ class _TextInputState extends State<TextInputPage> {
     showLoading(context);
     List<String> images = [];
     if (!isListEmpty(imageList)) {
-      images = await Future.wait(imageList.map((e) {
-        if (e.startsWith('http')) {
-          return Future.value(e);
-        }
-        return UploadOss.upload(e);
-      }).toList());
+      if (Global.isLogin()) {
+        images = await Future.wait(imageList.map((e) {
+          if (e.startsWith('http')) {
+            return Future.value(e);
+          }
+          return UploadOss.upload(e);
+        }).toList());
+      } else {
+        images.addAll(imageList);
+      }
     }
     ExcerptUploadBean bean = update
         ? ExcerptUploadBean(tagId, content, comment,

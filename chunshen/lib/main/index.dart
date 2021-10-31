@@ -1,9 +1,13 @@
 import 'package:chunshen/bar/index.dart';
+import 'package:chunshen/global/index.dart';
+import 'package:chunshen/model/index.dart';
 import 'package:chunshen/net/index.dart';
 import 'package:chunshen/style/index.dart';
+import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/excerpt/index.dart';
 import 'package:chunshen/ramble/index.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class IOperationListener {
   onExcerptUploadFinished() {}
@@ -22,12 +26,28 @@ class _MainState extends State<MainPage> {
 
   @override
   void initState() {
+    _login();
     initNet().then((value) {
       setState(() {
         inited = true;
       });
     });
     super.initState();
+  }
+
+  void _login() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    String? password = prefs.getString('password');
+    if (username == null || password == null) {
+      return;
+    }
+    String md5Pwd = generateMd5(password);
+    CSResponse response = await UserModel.login(username, md5Pwd);
+    if (CSResponse.success(response)) {
+      Global.username = username;
+      Global.onLogin();
+    }
   }
 
   @override

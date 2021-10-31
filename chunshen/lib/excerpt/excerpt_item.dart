@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:chunshen/base/widget/image/big_image.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/config.dart';
+import 'package:chunshen/excerpt/more_menu.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
@@ -133,10 +132,18 @@ class ExcerptContentItem extends StatefulWidget {
   }
 }
 
-class ExcerptContentItemState extends State<ExcerptContentItem> {
+class ExcerptContentItemState extends State<ExcerptContentItem>
+    implements IMenuListener {
   final InputBorder border = InputBorder.none;
   bool showCommentInput = false;
   String? comment = '';
+  late MoreMenu moreMenu;
+
+  @override
+  void initState() {
+    moreMenu = MoreMenu(widget.bean, context, this);
+    super.initState();
+  }
 
   PopupMenuItem<String> getPopItem(String text, String value) {
     return PopupMenuItem<String>(
@@ -148,71 +155,13 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
   handleShare() {}
 
   Widget buildMoreMenu() {
-    return PopupMenuButton<String>(
-      itemBuilder: (BuildContext context) {
-        return [
-          getPopItem('分享', 'share'),
-          getPopItem('复制', 'copy'),
-          getPopItem('评论', 'comment'),
-          getPopItem('编辑', 'edit'),
-          getPopItem('删除', 'delete'),
-        ];
-      },
-      icon: Icon(
-        Icons.adaptive.more,
-        color: Color(CSColor.blue),
-      ),
-      onSelected: onPopupMenuSelected,
-    );
-  }
-
-  onPopupMenuSelected(String value) {
-    switch (value) {
-      case 'share':
-        break;
-      case 'copy':
-        copyToClipboard(widget.bean?.excerptContent?.content);
-        break;
-      case 'comment':
-        triggerCommentInput(true);
-        break;
-      case 'edit':
-        triggerEdit();
-        break;
-      case 'delete':
-        triggerDelete();
-        break;
-      default:
-    }
-  }
-
-  triggerDelete() {
-    showNorlmalDialog(context, '提示', '确认删除此文摘吗？', '取消', '确认', null, () async {
-      showLoading(context);
-      CSResponse resp = await DeleteModel.deleteExcerpt(widget.bean?.id);
-      hideLoading(context);
-      if (CSResponse.success(resp)) {
-        toast('删除成功');
-        widget.onExcerptDeleted?.call();
-      } else {
-        toast('删除失败，请稍后重试～');
-      }
-    });
+    return moreMenu.buildMoreMenu();
   }
 
   triggerCommentInput(show) {
     setState(() {
       showCommentInput = show;
     });
-  }
-
-  triggerEdit() async {
-    widget.bean?.update = true;
-    ExcerptUploadBean? uploadBean =
-        await openPage(context, PAGE_TEXT_INPUT, params: widget.bean);
-    if (uploadBean != null) {
-      refreshExcerpt(uploadBean);
-    }
   }
 
   refreshExcerpt(ExcerptUploadBean uploadBean) {
@@ -246,43 +195,7 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
   }
 
   Widget buildCommentInput() {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border.all(color: Color(CSColor.gray2), width: 0.5),
-          borderRadius: BorderRadius.circular(3)),
-      child: Column(
-        children: [
-          TextField(
-            onChanged: (String content) {
-              comment = content;
-            },
-            style: TextStyle(
-              fontSize: 15,
-            ),
-            decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
-                border: border,
-                enabledBorder: border,
-                focusedBorder: border,
-                hintText: '评论'),
-            maxLines: 3,
-            minLines: 1,
-          ),
-          Row(
-            children: [
-              Spacer(),
-              TextButton(
-                  onPressed: () {
-                    triggerCommentInput(false);
-                  },
-                  child: Text('取消')),
-              TextButton(onPressed: uploadComment, child: Text('提交'))
-            ],
-          )
-        ],
-      ),
-    );
+    return moreMenu.buildCommentInput();
   }
 
   bool hasImage(ExcerptBean? bean) {
@@ -345,6 +258,33 @@ class ExcerptContentItemState extends State<ExcerptContentItem> {
             crossAxisAlignment: CrossAxisAlignment.start,
           )
         : Spacer();
+  }
+
+  @override
+  onDeleteSuccess() {
+    widget.onExcerptDeleted?.call();
+  }
+
+  @override
+  onEdit(ExcerptUploadBean? bean) {
+    if (bean != null) {
+      refreshExcerpt(bean);
+    }
+  }
+
+  @override
+  onComment(bool show) {
+    triggerCommentInput(show);
+  }
+
+  @override
+  onCommentChanged(String content) {
+    comment = content;
+  }
+
+  @override
+  onCommentUpload() {
+    uploadComment();
   }
 }
 

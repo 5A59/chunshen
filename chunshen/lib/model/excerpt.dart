@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:chunshen/model/tag.dart';
+import 'package:chunshen/utils/index.dart';
 
 class ExcerptUploadBean {
   String? id;
@@ -27,6 +30,8 @@ class ExcerptUploadBean {
 class ExcerptListBean {
   List<ExcerptBean> content = [];
 
+  ExcerptListBean(this.content);
+
   ExcerptListBean.fromJson(Map<String, dynamic> json) {
     this.content =
         (json['data'] as List?)?.map((e) => ExcerptBean.fromJson(e)).toList() ??
@@ -36,24 +41,39 @@ class ExcerptListBean {
 
 class ExcerptBean {
   String? id;
+  String? tagId;
   TagBean? tag;
   ExcerptContentBean? excerptContent;
   List<ExcerptCommentBean> comment = [];
   List<String>? image = [];
   bool update = false;
 
-  ExcerptBean(this.id, this.tag, this.excerptContent, this.comment, this.image,
-      this.update);
+  ExcerptBean(this.id, this.tagId, this.tag, this.excerptContent, this.comment,
+      this.image, this.update);
 
   ExcerptBean.fromJson(Map<String, dynamic> json) {
     this.id = json['_id'];
     this.tag = TagBean.fromJson(json['tag']);
+    this.tagId = json['tagId'];
     this.excerptContent = ExcerptContentBean.fromJson(json['content']);
     this.comment = (json['comment'] as List?)
             ?.map((e) => ExcerptCommentBean.fromJson(e))
             .toList() ??
         [];
     this.image = (json['image'] as List?)?.map((e) => e as String).toList();
+  }
+
+  Map toJson() {
+    Map map = Map();
+    map['_id'] = id;
+    map['tag'] = tag?.toJson();
+    if (!isEmpty(tagId)) {
+      map['tagId'] = tagId;
+    }
+    map['content'] = excerptContent?.toJson();
+    map['comment'] = comment;
+    map['image'] = image;
+    return map;
   }
 }
 
@@ -67,6 +87,13 @@ class ExcerptContentBean {
     this.content = json['content'];
     this.time = json['time'];
   }
+
+  Map toJson() {
+    Map map = Map();
+    map['content'] = content;
+    map['time'] = time;
+    return map;
+  }
 }
 
 class ExcerptCommentBean {
@@ -74,13 +101,21 @@ class ExcerptCommentBean {
   int? time;
   String? content;
 
-  ExcerptCommentBean();
+  ExcerptCommentBean(this.id, this.content, this.time);
   ExcerptCommentBean.create(this.content, this.time);
 
   ExcerptCommentBean.fromJson(Map<String, dynamic> json) {
     this.id = json['_id'];
     this.time = json['time'];
     this.content = json['content'];
+  }
+
+  Map toJson() {
+    Map map = Map();
+    map['_id'] = id;
+    map['time'] = time;
+    map['content'] = content;
+    return map;
   }
 }
 

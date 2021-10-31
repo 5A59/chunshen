@@ -3,6 +3,7 @@ import 'package:chunshen/net/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,14 +16,40 @@ class _LoginState extends State<LoginPage> {
   String? username;
   String? password;
 
+  @override
+  void initState() {
+    getPwd();
+    super.initState();
+  }
+
+  void savePwd(String username, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username);
+    await prefs.setString('password', password);
+  }
+
+  void getPwd() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? username = prefs.getString('username');
+    String? password = prefs.getString('password');
+    if (isEmpty(this.username)) {
+      setState(() {
+        this.username = username;
+        this.password = password;
+      });
+    }
+  }
+
   void _login() async {
     if (username == null || password == null) {
       toast('请输入账号和密码');
       return;
     }
-    CSResponse response = await UserModel.login(username, password);
+    String md5Pwd = generateMd5(password!);
+    CSResponse response = await UserModel.login(username, md5Pwd);
     if (CSResponse.success(response)) {
       toast('登录成功');
+      savePwd(username!, password!);
     } else {
       if (isEmpty(response.msg)) {
         toast(response.msg);
@@ -48,6 +75,7 @@ class _LoginState extends State<LoginPage> {
                 style: TextStyle(
                   fontSize: 15,
                 ),
+                controller: TextEditingController()..text = username ?? '',
                 decoration: InputDecoration(
                     contentPadding:
                         EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
@@ -61,6 +89,7 @@ class _LoginState extends State<LoginPage> {
                 style: TextStyle(
                   fontSize: 15,
                 ),
+                controller: TextEditingController()..text = password ?? '',
                 decoration: InputDecoration(
                     contentPadding:
                         EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),

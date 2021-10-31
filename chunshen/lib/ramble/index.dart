@@ -13,6 +13,7 @@ class _RambleState extends State<RamblePage>
     with AutomaticKeepAliveClientMixin {
   List<Widget> pages = [];
   List<ExcerptBean> excerptData = [];
+  Map<String, ExcerptBean> excerptMap = {};
   bool loading = false;
   PageController _pageController = PageController(
     initialPage: 0,
@@ -33,6 +34,15 @@ class _RambleState extends State<RamblePage>
     getRambleData();
   }
 
+  ExcerptBean? getExcerpt(ExcerptBean bean) {
+    if (excerptMap.containsKey(bean.id)) {
+      return excerptMap[bean.id];
+    } else {
+      excerptMap[bean.id ?? ''] = bean;
+    }
+    return bean;
+  }
+
   void getRambleData([bool autoNext = false]) {
     setState(() {
       loading = true;
@@ -43,12 +53,12 @@ class _RambleState extends State<RamblePage>
         excerptData.addAll(value);
         pages = [
           ...pages,
-          ...value
-              .map((e) => RambleContent(
-                    e,
-                    parentController: _pageController,
-                  ))
-              .toList()
+          ...value.map((e) {
+            return RambleContent(
+              getExcerpt(e),
+              parentController: _pageController,
+            );
+          }).toList()
         ];
       });
       if (autoNext) {

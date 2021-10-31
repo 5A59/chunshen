@@ -1,3 +1,5 @@
+import 'package:chunshen/utils/index.dart';
+
 class TagBean {
   String? id;
   String? head;
@@ -15,7 +17,10 @@ class TagBean {
   }
 
   Map toJson() {
-    Map map = Map();
+    Map<String, dynamic> map = Map<String, dynamic>();
+    if (!isEmpty(id)) {
+      map['id'] = id;
+    }
     map['head'] = head;
     map['content'] = content;
     map['publish'] = publish;
@@ -28,6 +33,13 @@ class TagListBean {
   List<TagBean> list = [];
 
   TagListBean.fromJson(Map<String, dynamic> json) {
-    this.list = (json['data'] as List).map((e) => TagBean.fromJson(e)).toList();
+    this.list =
+        (json['data'] as List?)?.map((e) => TagBean.fromJson(e)).toList() ?? [];
+  }
+
+  Map toJson() {
+    Map map = Map();
+    map['data'] = list.map((e) => e.toJson()).toList();
+    return map;
   }
 }

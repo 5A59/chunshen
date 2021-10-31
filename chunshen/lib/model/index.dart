@@ -1,53 +1,51 @@
+import 'package:chunshen/model/file_model.dart';
 import 'package:chunshen/model/spider/index.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/model/user.dart';
 import 'package:chunshen/net/index.dart';
-import 'package:chunshen/utils/index.dart';
 
 import 'excerpt.dart';
-import 'dart:convert';
+
+import 'net_model.dart';
 
 class BaseModel {
-  static Map<String, dynamic> _parseJson(String data) {
-    return jsonDecode(data);
+  static const int _TYPE_NET = 0;
+  static const int _TYPE_FILE = 1;
+  static int _type = _TYPE_FILE;
+
+  static useNetServer() {
+    _type = _TYPE_NET;
+  }
+
+  static useFileServer() {
+    _type = _TYPE_FILE;
+  }
+
+  static isNet() {
+    return _type == _TYPE_NET;
   }
 }
 
-class ExcerptModel extends BaseModel {
-  ExcerptModel._();
-
-  factory ExcerptModel.init() {
-    return ExcerptModel._();
-  }
-
+class ExcerptModel {
   static Future<ExcerptListBean> getExcerptListBean(
       int page, Set<String>? tags) async {
-    CSResponse resp = await httpGet('/api/excerpts', query: {
-      "page": page,
-      "tags": jsonEncode(tags?.map((e) => e).toList() ?? [])
-    });
-    // Map<String, dynamic> data = _parseJson(TESTDATA);
-    Map<String, dynamic> data = BaseModel._parseJson(resp.data);
-    return ExcerptListBean.fromJson(data);
+    return BaseModel.isNet()
+        ? ExcerptNetModel.getExcerptListBean(page, tags)
+        : ExcerptFileModel.getExcerptListBean(page, tags);
   }
 
   static Future<CSResponse> uploadNewExcerpt(ExcerptUploadBean bean) async {
-    CSResponse resp = await httpPost('/api/excerpt', body: bean);
-    return resp;
+    return BaseModel.isNet()
+        ? ExcerptNetModel.uploadNewExcerpt(bean)
+        : ExcerptFileModel.uploadNewExcerpt(bean);
   }
 }
 
-class TagModel extends BaseModel {
-  TagModel._();
-
-  factory TagModel.init() {
-    return TagModel._();
-  }
-
+class TagModel {
   static Future<TagListBean> getTagListBean() async {
-    CSResponse resp = await httpGet('/api/tags');
-    Map<String, dynamic> data = BaseModel._parseJson(resp.data);
-    return TagListBean.fromJson(data);
+    return BaseModel.isNet()
+        ? TagNetModel.getTagListBean()
+        : TagFileModel.getTagListBean();
   }
 
   static search(String tag) async {
@@ -55,68 +53,55 @@ class TagModel extends BaseModel {
   }
 
   static addTag(TagBean tag) async {
-    CSResponse resp = await httpPost('/api/tag', body: tag);
-    return resp;
+    return BaseModel.isNet()
+        ? TagNetModel.addTag(tag)
+        : TagFileModel.addTag(tag);
   }
 }
 
-class RambleModel extends BaseModel {
-  RambleModel._();
-
-  factory RambleModel.init() {
-    return RambleModel._();
-  }
-
+class RambleModel {
   static Future<List<ExcerptBean>> getRambleData() async {
-    CSResponse resp = await httpGet('/api/ramble');
-    Map<String, dynamic> data = BaseModel._parseJson(resp.data);
-    return ExcerptListBean.fromJson(data).content;
+    return BaseModel.isNet()
+        ? RambleNetModel.getRambleData()
+        : RambleFileModel.getRambleData();
   }
 }
 
 class CommentModel {
-  CommentModel._();
-
   static Future<ExcerptCommentBean?> uploadNewComment(
       String? excerptId, String? content) async {
-    CSResponse resp = await httpPost('/api/comment',
-        body: CommentUploadBean(excerptId, content));
-    if (CSResponse.success(resp)) {
-      Map<String, dynamic> data = BaseModel._parseJson(resp.data);
-      return ExcerptCommentBean.fromJson(data);
-    }
-    return null;
+    return BaseModel.isNet()
+        ? CommentNetModel.uploadNewComment(excerptId, content)
+        : CommentFileModel.uploadNewComment(excerptId, content);
   }
 }
 
 class DeleteModel {
-  DeleteModel._();
-
   static Future<CSResponse> deleteExcerpt(String? id) async {
     if (id == null) {
       return CSResponse.error();
     }
-    CSResponse response =
-        await httpPost('/api/deleteExcerpt', body: DeleteBean(id));
-    return response;
+    return BaseModel.isNet()
+        ? DeleteNetModel.deleteExcerpt(id)
+        : DeleteFileModel.deleteExcerpt(id);
   }
 
   static Future<CSResponse> deleteTag(String? id) async {
     if (id == null) {
       return CSResponse.error();
     }
-    CSResponse response =
-        await httpPost('/api/deleteTag', body: DeleteBean(id));
-    return response;
+    return BaseModel.isNet()
+        ? DeleteNetModel.deleteTag(id)
+        : DeleteFileModel.deleteTag(id);
   }
 
   static Future<CSResponse> deleteComment(String? excerptId, String? id) async {
     if (id == null || excerptId == null) {
       return CSResponse.error();
     }
-    CSResponse response = await httpPost('/api/deleteComment',
-        body: CommentDeleteBean(excerptId, id));
-    return response;
+    return BaseModel.isNet()
+        ? DeleteNetModel.deleteComment(excerptId, id)
+        : DeleteFileModel.deleteComment(excerptId, id);
   }
 }
 
@@ -125,8 +110,8 @@ class UserModel {
     if (username == null || password == null) {
       return CSResponse.error();
     }
-    CSResponse response = await httpPost('/user/login',
-        body: UserBean(username, generateMd5(password)));
+    CSResponse response =
+        await httpPost('/user/login', body: UserBean(username, password));
     return response;
   }
 }

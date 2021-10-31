@@ -45,6 +45,10 @@ class CSResponse {
   static CSResponse error({int status = 1, String error = 'error'}) {
     return CSResponse._(status, error, '');
   }
+
+  static CSResponse normal({int status = 0, String error = 'success'}) {
+    return CSResponse._(status, error, '');
+  }
 }
 
 Future<Response> rawGet(String path, {Map<String, dynamic>? query}) async {

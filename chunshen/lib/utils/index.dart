@@ -21,7 +21,7 @@ bool isEmpty(String? content) {
   return content?.isEmpty ?? true;
 }
 
-bool isListEmpty(List? list) {
+bool isListEmpty(Iterable? list) {
   return list == null || list.isEmpty;
 }
 
@@ -125,4 +125,14 @@ String generateMd5(String data) {
   var content = new Utf8Encoder().convert(data);
   var digest = md5.convert(content);
   return digest.toString();
+}
+
+Iterable<T> pickRandomItems<T>(List<T> items, int count) =>
+    (items.toList()..shuffle()).take(count);
+
+csJsonDecode(String content) {
+  if (isEmpty(content)) {
+    return jsonDecode('{}');
+  }
+  return jsonDecode(content);
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chunshen/base/ocr/index.dart';
 import 'package:chunshen/config.dart';
+import 'package:chunshen/global/index.dart';
 import 'package:chunshen/main/index.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/style/index.dart';
@@ -22,15 +23,28 @@ class OperationBar extends StatefulWidget {
 
 class _OperationBarState extends State<OperationBar> {
   final IOperationListener? listener;
+  String? username;
   _OperationBarState({this.listener});
 
-  List<Widget> getIconWithSpace(IconData iconData, {void Function()? onTap}) {
+  @override
+  void initState() {
+    Global.addLoginListener(() {
+      setState(() {
+        username = Global.username;
+      });
+    });
+    super.initState();
+  }
+
+  List<Widget> getIconWithSpace(var iconData, {void Function()? onTap}) {
     return [
       GestureDetector(
-        child: Icon(
-          iconData,
-          size: 35,
-        ),
+        child: iconData is String
+            ? ImageIcon(AssetImage(iconData), size: 33)
+            : Icon(
+                iconData,
+                size: 35,
+              ),
         onTap: onTap,
       ),
       SizedBox(width: 20)
@@ -72,7 +86,7 @@ class _OperationBarState extends State<OperationBar> {
         String res = await OcrUtils().ocr(file);
         hideLoading(context);
         ExcerptBean bean = ExcerptBean(
-            null, null, ExcerptContentBean(res, null), [], [], false);
+            null, null, null, ExcerptContentBean(res, null), [], [], false);
         var pageRes = await openPage(context, PAGE_TEXT_INPUT, params: bean);
         if (pageRes != null) {
           listener?.onExcerptUploadFinished();
@@ -90,9 +104,10 @@ class _OperationBarState extends State<OperationBar> {
 
   _openLogin() async {
     var res = await openPage(context, PAGE_LOGIN);
-    // if (res == true) {
-    //   listener?.onTagChanged();
-    // }
+  }
+
+  _openUserInfo() async {
+    openPage(context, PAGE_USER_INFO);
   }
 
   _onMenuSelected(String value) {
@@ -101,7 +116,11 @@ class _OperationBarState extends State<OperationBar> {
         _openManageTag();
         break;
       case 'login':
-        _openLogin();
+        if (isEmpty(Global.username)) {
+          _openLogin();
+        } else {
+          _openUserInfo();
+        }
         break;
       default:
     }
@@ -117,14 +136,16 @@ class _OperationBarState extends State<OperationBar> {
             child: Row(
               children: [
                 ...getIconWithSpace(Icons.keyboard, onTap: _openTextInput),
-                ...getIconWithSpace(Icons.photo_camera, onTap: _openImage),
+                ...getIconWithSpace('assets/images/ocr.png', onTap: _openImage),
                 ...getIconWithSpace(Icons.publish),
                 Expanded(child: SizedBox()),
                 PopupMenuButton<String>(
                   itemBuilder: (BuildContext context) {
                     return [
                       PopupMenuItem(value: 'book', child: Text('管理书籍')),
-                      PopupMenuItem(value: 'login', child: Text('登录'))
+                      PopupMenuItem(
+                          value: 'login',
+                          child: Text(isEmpty(username) ? '登录' : username!))
                     ];
                   },
                   icon: Icon(
