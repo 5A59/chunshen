@@ -216,11 +216,10 @@ class _TextInputState extends State<TextInputPage> {
             elevation: 0,
             backgroundColor: Color(CSColor.white),
             title: Text('添加书摘')),
-        body: SingleChildScrollView(
-            child: Container(
-                child: Stack(
-          children: [
-            Padding(
+        body: Stack(children: [
+          SingleChildScrollView(
+              child: Container(
+            child: Padding(
               padding: EdgeInsets.only(top: 10, left: 10, right: 10),
               child: Column(
                 children: [
@@ -260,15 +259,15 @@ class _TextInputState extends State<TextInputPage> {
                 ],
               ),
             ),
-            Positioned(
-              child: TagWidget(
-                onTagSelected,
-                multiSelect: false,
-                defaultTags: tagId != null ? [tagId!] : [],
-                showAdd: true,
-              ),
-            )
-          ],
-        ))));
+          )),
+          Positioned(
+            child: TagWidget(
+              onTagSelected,
+              multiSelect: false,
+              defaultTags: tagId != null ? [tagId!] : [],
+              showAdd: true,
+            ),
+          )
+        ]));
   }
 }

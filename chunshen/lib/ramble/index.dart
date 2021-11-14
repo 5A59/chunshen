@@ -27,7 +27,6 @@ class _RambleState extends State<RamblePage>
     _pageController.addListener(() {
       if (_pageController.position.pixels ==
           _pageController.position.maxScrollExtent) {
-        print('滑动到了最底部');
         getRambleData(true);
       }
     });
@@ -44,6 +43,9 @@ class _RambleState extends State<RamblePage>
   }
 
   void getRambleData([bool autoNext = false]) {
+    if (loading) {
+      return;
+    }
     setState(() {
       loading = true;
     });
@@ -71,10 +73,10 @@ class _RambleState extends State<RamblePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Column(
+    return Container(
+        child: Stack(
       children: [
-        Expanded(
-            child: PageView(
+        PageView(
           scrollDirection: Axis.vertical,
           controller: _pageController,
           physics: BouncingScrollPhysics(),
@@ -82,16 +84,20 @@ class _RambleState extends State<RamblePage>
             // getRambleData(index);
           },
           children: this.pages,
-        )),
-        loading
-            ? Container(
-                alignment: Alignment.center,
-                height: 50,
-                child:
-                    SizedBox(width: 50, height: 50, child: BallBounceLoading()))
-            : Container()
+        ),
+        Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: loading
+                ? Container(
+                    alignment: Alignment.center,
+                    height: 50,
+                    child: SizedBox(
+                        width: 50, height: 50, child: BallBounceLoading()))
+                : Container())
       ],
-    );
+    ));
   }
 
   @override
