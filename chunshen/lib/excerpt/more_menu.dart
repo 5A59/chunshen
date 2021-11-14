@@ -32,7 +32,7 @@ class MoreMenu {
         ];
       },
       icon: Icon(
-        Icons.adaptive.more,
+        Icons.more_horiz,
         color: Color(CSColor.blue),
       ),
       onSelected: onPopupMenuSelected,

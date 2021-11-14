@@ -1,17 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/utils/index.dart';
+import 'package:chunshen/utils/zip.dart';
+import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
 
 class FileServer {
-  int PAGE_COUNT = 20;
+  static const int PAGE_COUNT = 20;
 
   String path = 'chunshen/fileserver/tags';
   String tagListDir = 'chunshen/fileserver/';
+  String relateTagListPath = 'chunshen/fileserver/tagList';
   String tagListPath = 'chunshen/fileserver/tagList';
   String serverDir = '';
 
@@ -27,12 +31,69 @@ class FileServer {
   static FileServer _instance = FileServer._();
   FileServer._();
 
+  _getExtraPath() async {
+    Directory? dir = Platform.isAndroid
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+    return dir;
+  }
+
+  exportExcerpts() async {
+    String dir = (await getApplicationDocumentsDirectory()).path;
+    Directory serverDir = Directory('$dir/chunshen');
+    Directory targetDir = await _getExtraPath();
+    String target = '${targetDir.path}/chunshen';
+    String contentDir = '$target/content.zip';
+    bool res = await ZipUtils.zip(serverDir.path, contentDir);
+    if (!res) {
+      return '';
+    }
+    File checkFile = File('$target/cc');
+    checkFile.createSync();
+    String md5Str = md5.convert(File(contentDir).readAsBytesSync()).toString();
+    checkFile.writeAsStringSync(md5Str);
+    String targetFile = '${targetDir.path}/chunshen.zip';
+    res = await ZipUtils.zip(target, targetFile);
+    if (!res) {
+      return '';
+    }
+    return targetFile;
+  }
+
+  importExcerpts(String zipPath) async {
+    String dir = (await getApplicationDocumentsDirectory()).path;
+    String serverDir = '$dir/chunshen';
+    bool res = await ZipUtils.unZip(zipPath, serverDir);
+    if (!res) {
+      return false;
+    }
+    String contentZip = '$serverDir/content.zip';
+    String md5Str = md5.convert(File(contentZip).readAsBytesSync()).toString();
+    File checkFile = File('$serverDir/cc');
+    String comMd5 = checkFile.readAsStringSync().toString();
+    if (comMd5 != md5Str) {
+      return false;
+    }
+    res = await ZipUtils.unZip(contentZip, serverDir);
+    File(contentZip).deleteSync();
+    checkFile.deleteSync();
+    return res;
+  }
+
+  Future<void> reInit() async {
+    _hasInit = false;
+    await _init();
+  }
+
   Future<void> _init() async {
     await _lock.synchronized(() async {
       if (_hasInit) {
         return;
       }
-      _hasInit = true;
+      this.tagFiles = {};
+      this.excerptIdFiles = {};
+      this.sortedFiles = [];
+      this.tags = {};
       String dir = (await getApplicationDocumentsDirectory()).path;
       this.serverDir = dir;
       _createFiles(dir);
@@ -55,11 +116,12 @@ class FileServer {
           tags[element.id!] = element;
         });
       }
+      _hasInit = true;
     });
   }
 
   void _createFiles(String dir) {
-    this.tagListPath = '$dir/$tagListPath';
+    tagListPath = '$dir/$relateTagListPath';
     File file = File(tagListPath);
     if (!file.existsSync()) {
       file.createSync(recursive: true);
@@ -112,20 +174,17 @@ class FileServer {
       });
     }
     sort(files);
+    int start = page * PAGE_COUNT;
     List<ExcerptBean> excerpts = [];
-    int i = 0;
-    await Future.forEach<String>(files, (element) async {
-      if (i < page) {
-        return;
-      }
-      if (page + PAGE_COUNT < i) {
-        return;
-      }
-      i++;
-      String content = await File(_getFullPath(element)).readAsString();
-      ExcerptBean excerptBean = _getExcerptInner(content);
-      excerpts.add(excerptBean);
-    });
+    if (start < files.length) {
+      int end = min(start + PAGE_COUNT, files.length);
+      List<String> tmpFiles = files.sublist(start, end);
+      await Future.forEach<String>(tmpFiles, (element) async {
+        String content = await File(_getFullPath(element)).readAsString();
+        ExcerptBean excerptBean = _getExcerptInner(content);
+        excerpts.add(excerptBean);
+      });
+    }
     ExcerptListBean excerptListBean = ExcerptListBean(excerpts);
     return excerptListBean;
   }
@@ -260,6 +319,7 @@ class FileServer {
       tags = '{}';
     }
     TagListBean beanList = TagListBean.fromJson(csJsonDecode(tags));
+    beanList.list = beanList.list.reversed.toList();
     return beanList;
   }
 }

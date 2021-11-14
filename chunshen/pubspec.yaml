@@ -40,6 +40,9 @@ dependencies:
   path_provider: 2.0.4
   shared_preferences: 2.0.6
   synchronized: ^3.0.0
+  archive: ^3.0.0
+  permission_handler: ^6.0.0
+  file_picker: ^3.0.0
 
 
 dev_dependencies:

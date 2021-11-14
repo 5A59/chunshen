@@ -1,6 +1,5 @@
 import 'package:chunshen/base/widget/image/big_image.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
-import 'package:chunshen/config.dart';
 import 'package:chunshen/excerpt/more_menu.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
@@ -316,6 +315,29 @@ class ExcerptItemState extends State<ExcerptItem> {
     widget.onExcerptDelete?.call();
   }
 
+  _buildHead(TagBean? tag) {
+    if (isEmpty(tag?.head)) {
+      if (!isEmpty(tag?.content)) {
+        return SizedBox(
+          width: 50,
+          height: 80,
+          child: Container(
+            alignment: Alignment.center,
+            child: Text(
+              tag?.content?.substring(0, 1) ?? '',
+              style: TextStyle(
+                  color: Color(CSColor.blue),
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold),
+            ),
+            color: Color(CSColor.gray),
+          ),
+        );
+      }
+    }
+    return CSImage.buildImage(tag?.head, 50, 80);
+  }
+
   @override
   Widget build(BuildContext context) {
     ExcerptBean bean = widget.bean;
@@ -327,7 +349,8 @@ class ExcerptItemState extends State<ExcerptItem> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CSImage.buildImage(bean.tag?.head, 50, 80),
+                // CSImage.buildImage(bean.tag?.head, 50, 80),
+                _buildHead(bean.tag),
                 SizedBox(
                   width: 10,
                 ),

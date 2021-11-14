@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:chunshen/base/ocr/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -35,6 +40,18 @@ showLoading(BuildContext context) {
   );
   showDialog(
     barrierDismissible: false,
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
+showMessageDialog(BuildContext context, String msg) {
+  AlertDialog alert = AlertDialog(
+    content: Text(msg),
+  );
+  showDialog(
     context: context,
     builder: (BuildContext context) {
       return alert;
@@ -135,4 +152,34 @@ csJsonDecode(String content) {
     return jsonDecode('{}');
   }
   return jsonDecode(content);
+}
+
+Future<String> ocr(BuildContext context, XFile? image) async {
+  String res = "";
+  if (image != null) {
+    File? file = await ImageCropper.cropImage(
+        sourcePath: image.path,
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio3x2,
+          CropAspectRatioPreset.original,
+          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.ratio16x9
+        ],
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'OCR',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          minimumAspectRatio: 1.0,
+        ));
+    if (file != null) {
+      showLoading(context);
+      res = await OcrUtils().ocr(file);
+      hideLoading(context);
+    }
+  }
+  return res;
 }

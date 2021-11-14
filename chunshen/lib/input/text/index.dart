@@ -37,6 +37,7 @@ class _TextInputState extends State<TextInputPage> {
   ExcerptBean? bean;
   bool update = false;
   TagBean? selectedTag;
+  TextEditingController textEditingController = TextEditingController();
 
   @override
   void initState() {
@@ -49,6 +50,10 @@ class _TextInputState extends State<TextInputPage> {
     if (bean != null) {
       tagId = bean?.tag?.id;
       content = bean?.excerptContent?.content;
+      textEditingController.text = content ?? '';
+      textEditingController.selection = TextSelection.fromPosition(
+        TextPosition(offset: content?.length ?? 0),
+      );
       update = bean?.update ?? false;
       imageList.addAll(bean?.image ?? []);
     }
@@ -57,11 +62,11 @@ class _TextInputState extends State<TextInputPage> {
   Widget getTextField(String hint,
       [bool big = true,
       void Function(String)? onChanged,
-      String? initText = '']) {
+      TextEditingController? textEditingController]) {
     return Container(
         padding: EdgeInsets.only(top: 10),
         child: TextField(
-          controller: TextEditingController()..text = initText ?? '',
+          controller: textEditingController,
           cursorColor: Color(CSColor.gray3),
           onChanged: onChanged,
           decoration: InputDecoration(
@@ -143,6 +148,31 @@ class _TextInputState extends State<TextInputPage> {
         ));
   }
 
+  _ocr(XFile? image) async {
+    String res = await ocr(context, image);
+    if (isEmpty(content)) {
+      content = res;
+    } else {
+      content = content ?? '' + '\n';
+    }
+    textEditingController.text = content ?? '';
+    textEditingController.selection = TextSelection.fromPosition(
+      TextPosition(offset: content?.length ?? 0),
+    );
+  }
+
+  _openCamera() async {
+    ImagePicker _picker = ImagePicker();
+    XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    await _ocr(image);
+  }
+
+  _openImage() async {
+    ImagePicker _picker = ImagePicker();
+    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    await _ocr(image);
+  }
+
   Widget buildImageContainer() {
     return Container(
       alignment: Alignment.topLeft,
@@ -199,7 +229,18 @@ class _TextInputState extends State<TextInputPage> {
                   ),
                   getTextField('这里输入内容', true, (String text) {
                     content = text;
-                  }, content),
+                  }, textEditingController),
+                  Row(
+                    children: [
+                      Expanded(child: SizedBox()),
+                      GestureDetector(
+                        child: ImageIcon(AssetImage('assets/images/ocr.png'),
+                            size: 33),
+                        onTap: _openCamera,
+                        onLongPress: _openImage,
+                      ),
+                    ],
+                  ),
                   buildImageContainer(),
                   if (!update)
                     getTextField('这里来点想法', false, (String text) {

@@ -1,14 +1,12 @@
-import 'dart:io';
-
-import 'package:chunshen/base/ocr/index.dart';
 import 'package:chunshen/config.dart';
 import 'package:chunshen/global/index.dart';
 import 'package:chunshen/main/index.dart';
 import 'package:chunshen/model/excerpt.dart';
+import 'package:chunshen/model/fileserver/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/utils/index.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 class OperationBar extends StatefulWidget {
@@ -36,7 +34,8 @@ class _OperationBarState extends State<OperationBar> {
     super.initState();
   }
 
-  List<Widget> getIconWithSpace(var iconData, {void Function()? onTap}) {
+  List<Widget> getIconWithSpace(var iconData,
+      {void Function()? onTap, void Function()? onLongPress}) {
     return [
       GestureDetector(
         child: iconData is String
@@ -46,6 +45,7 @@ class _OperationBarState extends State<OperationBar> {
                 size: 35,
               ),
         onTap: onTap,
+        onLongPress: onLongPress,
       ),
       SizedBox(width: 20)
     ];
@@ -58,41 +58,29 @@ class _OperationBarState extends State<OperationBar> {
     }
   }
 
+  _ocr(XFile? image) async {
+    String res = await ocr(context, image);
+    if (isEmpty(res)) {
+      return;
+    }
+    ExcerptBean bean = ExcerptBean(
+        null, null, null, ExcerptContentBean(res, null), [], [], false);
+    var pageRes = await openPage(context, PAGE_TEXT_INPUT, params: bean);
+    if (pageRes != null) {
+      listener?.onExcerptUploadFinished();
+    }
+  }
+
+  _openCamera() async {
+    ImagePicker _picker = ImagePicker();
+    XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    await _ocr(image);
+  }
+
   _openImage() async {
     ImagePicker _picker = ImagePicker();
     XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      File? file = await ImageCropper.cropImage(
-          sourcePath: image.path,
-          aspectRatioPresets: [
-            CropAspectRatioPreset.square,
-            CropAspectRatioPreset.ratio3x2,
-            CropAspectRatioPreset.original,
-            CropAspectRatioPreset.ratio4x3,
-            CropAspectRatioPreset.ratio16x9
-          ],
-          androidUiSettings: AndroidUiSettings(
-              toolbarTitle: 'OCR',
-              toolbarColor: Colors.deepOrange,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: false),
-          iosUiSettings: IOSUiSettings(
-            minimumAspectRatio: 1.0,
-          ));
-      if (file != null) {
-        showLoading(context);
-        String res = await OcrUtils().ocr(file);
-        hideLoading(context);
-        ExcerptBean bean = ExcerptBean(
-            null, null, null, ExcerptContentBean(res, null), [], [], false);
-        var pageRes = await openPage(context, PAGE_TEXT_INPUT, params: bean);
-        if (pageRes != null) {
-          listener?.onExcerptUploadFinished();
-        }
-      }
-    }
+    await _ocr(image);
   }
 
   _openManageTag() async {
@@ -110,6 +98,33 @@ class _OperationBarState extends State<OperationBar> {
     openPage(context, PAGE_USER_INFO);
   }
 
+  _exportExcerpts() async {
+    String res = await FileServer().exportExcerpts();
+    showMessageDialog(context, !isEmpty(res) ? '导出成功：$res' : '导出失败');
+  }
+
+  _importExcerpts() async {
+    FileServer fileServer = FileServer();
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      String? path = result.files.single.path;
+      if (isEmpty(path)) {
+        showMessageDialog(context, '导入失败');
+        return;
+      }
+      bool res = await fileServer.importExcerpts(path!);
+      if (res) {
+        showMessageDialog(context, '导入成功');
+        await fileServer.reInit();
+        listener?.onExcerptUploadFinished();
+      } else {
+        showMessageDialog(context, '导入失败');
+      }
+    } else {
+      showMessageDialog(context, '导入失败');
+    }
+  }
+
   _onMenuSelected(String value) {
     switch (value) {
       case 'book':
@@ -121,6 +136,12 @@ class _OperationBarState extends State<OperationBar> {
         } else {
           _openUserInfo();
         }
+        break;
+      case 'export':
+        _exportExcerpts();
+        break;
+      case 'import':
+        _importExcerpts();
         break;
       default:
     }
@@ -135,13 +156,26 @@ class _OperationBarState extends State<OperationBar> {
             padding: EdgeInsets.only(left: 20, right: 20),
             child: Row(
               children: [
-                ...getIconWithSpace(Icons.keyboard, onTap: _openTextInput),
-                ...getIconWithSpace('assets/images/ocr.png', onTap: _openImage),
-                ...getIconWithSpace(Icons.publish),
-                Expanded(child: SizedBox()),
+                ...getIconWithSpace('assets/images/ocr.png',
+                    onTap: _openCamera, onLongPress: _openImage),
+                Expanded(
+                    child: GestureDetector(
+                        onTap: _openTextInput,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Color(CSColor.gray1))),
+                          height: 40,
+                          alignment: Alignment.center,
+                          child: Text(
+                            '点此输入',
+                            style: TextStyle(color: Color(CSColor.gray2)),
+                          ),
+                        ))),
                 PopupMenuButton<String>(
                   itemBuilder: (BuildContext context) {
                     return [
+                      PopupMenuItem(value: 'export', child: Text('导出书摘')),
+                      PopupMenuItem(value: 'import', child: Text('导入书摘')),
                       PopupMenuItem(value: 'book', child: Text('管理书籍')),
                       PopupMenuItem(
                           value: 'login',
