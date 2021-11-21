@@ -80,20 +80,27 @@ class _AddTagState extends State<AddTagPage> {
         onTap: () {
           _addTag(bean);
         },
-        child: Row(
+        child: Column(
           children: [
-            CSImage.buildImage(bean.head, 50, 80),
-            SizedBox(
-              width: 10,
-            ),
-            Expanded(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
-                Text(bean.content ?? ''),
-                Text(bean.publish ?? ''),
+                CSImage.buildImage(bean.head, 50, 80),
+                SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(bean.content ?? ''),
+                    Text(bean.publish ?? ''),
+                  ],
+                ))
               ],
-            ))
+            ),
+            SizedBox(
+              height: 10,
+            )
           ],
         ));
   }
@@ -134,7 +141,10 @@ class _AddTagState extends State<AddTagPage> {
                   });
                 }
               },
-              child: Text('确认'))
+              child: Text(
+                '确认',
+                style: TextStyle(color: Color(CSColor.lightBlack)),
+              ))
         ],
       ),
     );

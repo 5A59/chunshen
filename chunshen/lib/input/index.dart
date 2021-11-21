@@ -90,7 +90,7 @@ class _TextInputState extends State<TextInputPage> {
     showLoading(context);
     List<String> images = [];
     if (!isListEmpty(imageList)) {
-      if (Global.isLogin()) {
+      if (Global.isLogin() && BaseModel.isNet()) {
         images = await Future.wait(imageList.map((e) {
           if (e.startsWith('http')) {
             return Future.value(e);
@@ -262,7 +262,15 @@ class _TextInputState extends State<TextInputPage> {
                       ),
                     ],
                   ),
+                  Divider(
+                    height: 10,
+                    color: Color(CSColor.gray5),
+                  ),
                   buildImageContainer(),
+                  Divider(
+                    height: 10,
+                    color: Color(CSColor.gray5),
+                  ),
                   if (!update)
                     getTextField('这里来点想法', false, (String text) {
                       comment = text;

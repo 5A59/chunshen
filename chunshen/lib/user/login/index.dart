@@ -66,39 +66,65 @@ class _LoginState extends State<LoginPage> {
             title: Text('登录')),
         body: SingleChildScrollView(
           child: Container(
+              padding: EdgeInsets.all(10),
               child: Column(
-            children: [
-              TextField(
-                onChanged: (String content) {
-                  username = content;
-                },
-                style: TextStyle(
-                  fontSize: 15,
-                ),
-                controller: TextEditingController()..text = username ?? '',
-                decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
-                    hintText: '输入邮箱'),
-              ),
-              TextField(
-                obscureText: true,
-                onChanged: (String content) {
-                  password = content;
-                },
-                style: TextStyle(
-                  fontSize: 15,
-                ),
-                controller: TextEditingController()..text = password ?? '',
-                decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
-                    hintText: '输入密码'),
-              ),
-              TextButton(onPressed: _login, child: Text('登录')),
-              Text('未注册的账号点击登录会自动注册')
-            ],
-          )),
+                children: [
+                  Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          image: DecorationImage(
+                              image: AssetImage('assets/images/icon.jpeg')))),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  TextField(
+                    onChanged: (String content) {
+                      username = content;
+                    },
+                    style: TextStyle(
+                      fontSize: 15,
+                    ),
+                    controller: TextEditingController()..text = username ?? '',
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.only(
+                            left: 10, right: 10, top: 0, bottom: 0),
+                        hintText: '输入邮箱'),
+                  ),
+                  TextField(
+                    obscureText: true,
+                    onChanged: (String content) {
+                      password = content;
+                    },
+                    style: TextStyle(
+                      fontSize: 15,
+                    ),
+                    controller: TextEditingController()..text = password ?? '',
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.only(
+                            left: 10, right: 10, top: 0, bottom: 0),
+                        hintText: '输入密码'),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Text(
+                    '未注册的账号点击登录会自动注册',
+                    style: TextStyle(color: Color(CSColor.gray5)),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextButton(
+                      onPressed: _login,
+                      child: Text(
+                        '登录',
+                        style: TextStyle(
+                            color: Color(CSColor.lightBlack), fontSize: 16),
+                      )),
+                ],
+              )),
         ));
   }
 }

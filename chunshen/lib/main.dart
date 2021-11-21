@@ -1,6 +1,6 @@
 import 'package:chunshen/base/widget/text_selector/index.dart';
 import 'package:chunshen/config.dart';
-import 'package:chunshen/input/text/index.dart';
+import 'package:chunshen/input/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/tag/add_tag/index.dart';
 import 'package:chunshen/tag/manage_tag/index.dart';

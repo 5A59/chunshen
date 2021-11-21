@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/config.dart';
 import 'package:chunshen/model/index.dart';
