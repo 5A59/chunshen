@@ -19,7 +19,7 @@ class _TagItemState extends State<TagItem> {
   @override
   Widget build(BuildContext context) {
     late bool selected = widget.selected;
-    int color = selected ? CSColor.blue : CSColor.gray4;
+    int color = selected ? CSColor.yellow : CSColor.gray4;
     return GestureDetector(
         onTap: () {
           setState(() {

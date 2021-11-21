@@ -119,8 +119,11 @@ class _TextInputState extends State<TextInputPage> {
     }
   }
 
-  onTagSelected(Set<String> tags, List<TagBean> list) {
-    tagId = tags.elementAt(0);
+  onTagSelected(Set<String?> tags, List<TagBean> list) {
+    if (tags.isEmpty) {
+      return;
+    }
+    tagId = tags.elementAt(0) ?? "";
     list.forEach((element) {
       if (element.id == tagId) {
         selectedTag = element;
@@ -213,9 +216,28 @@ class _TextInputState extends State<TextInputPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Color(CSColor.white),
-            title: Text('添加书摘')),
+          elevation: 0,
+          backgroundColor: Color(CSColor.white),
+          title: Text('添加书摘'),
+          actions: [
+            TextButton(
+                onPressed: () {},
+                child: TextButton(
+                  style: ButtonStyle(
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.blue),
+                  ),
+                  onPressed: () {
+                    uploadExcerpt(context);
+                  },
+                  child: Text(
+                    update ? '更新' : '提交',
+                    style: TextStyle(
+                        fontSize: 16, color: Color(CSColor.lightBlack)),
+                  ),
+                ))
+          ],
+        ),
         body: Stack(children: [
           SingleChildScrollView(
               child: Container(
@@ -245,17 +267,6 @@ class _TextInputState extends State<TextInputPage> {
                     getTextField('这里来点想法', false, (String text) {
                       comment = text;
                     }),
-                  Container(
-                      child: TextButton(
-                    style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.blue),
-                    ),
-                    onPressed: () {
-                      uploadExcerpt(context);
-                    },
-                    child: Text(update ? '更新' : '提交'),
-                  ))
                 ],
               ),
             ),

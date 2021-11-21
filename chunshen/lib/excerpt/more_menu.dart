@@ -24,7 +24,7 @@ class MoreMenu {
     return PopupMenuButton<String>(
       itemBuilder: (BuildContext context) {
         return [
-          _getPopItem('分享', 'share'),
+          // _getPopItem('分享', 'share'),
           _getPopItem('复制', 'copy'),
           _getPopItem('评论', 'comment'),
           _getPopItem('编辑', 'edit'),
@@ -33,7 +33,7 @@ class MoreMenu {
       },
       icon: Icon(
         Icons.more_horiz,
-        color: Color(CSColor.blue),
+        color: Color(CSColor.lightBlack),
       ),
       onSelected: onPopupMenuSelected,
     );

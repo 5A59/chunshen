@@ -104,6 +104,7 @@ class _ExcerptCommentItemState extends State<ExcerptCommentItem> {
   Widget build(BuildContext context) {
     return (widget.comment?.length ?? 0) > 0
         ? Container(
+            margin: EdgeInsets.only(bottom: 10),
             padding: EdgeInsets.only(top: 10, bottom: 10),
             child: ListView.builder(
               shrinkWrap: true,
@@ -228,16 +229,17 @@ class ExcerptContentItemState extends State<ExcerptContentItem>
               Text(
                 tag?.content ?? '',
                 style: TextStyle(
-                    fontSize: 18,
-                    color: Color(CSColor.blue),
+                    fontSize: 20,
+                    color: Color(CSColor.lightBlack),
                     fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 5),
+              SizedBox(height: 10),
               GestureDetector(
                 onLongPress: () {
                   copyToClipboard(bean.content);
                 },
-                child: Text(bean.content ?? ''),
+                child: Text(bean.content ?? '',
+                    style: TextStyle(fontSize: 16, height: 1.7)),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -352,7 +354,7 @@ class ExcerptItemState extends State<ExcerptItem> {
                 // CSImage.buildImage(bean.tag?.head, 50, 80),
                 _buildHead(bean.tag),
                 SizedBox(
-                  width: 10,
+                  width: 20,
                 ),
                 Flexible(
                   child: ExcerptContentItem(
@@ -367,7 +369,12 @@ class ExcerptItemState extends State<ExcerptItem> {
                   bean,
                   bean.comment,
                   onCommentDeleted: onCommentDeleted,
-                ))
+                )),
+            Divider(
+              height: 1.0,
+              indent: 60.0,
+              color: Color(CSColor.gray2),
+            ),
           ],
         ));
   }

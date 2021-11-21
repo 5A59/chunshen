@@ -25,7 +25,7 @@ class _RambleState extends State<RamblePage>
   void initState() {
     super.initState();
     _pageController.addListener(() {
-      if (_pageController.position.pixels ==
+      if (_pageController.position.pixels >
           _pageController.position.maxScrollExtent) {
         getRambleData(true);
       }

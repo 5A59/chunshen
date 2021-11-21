@@ -39,10 +39,15 @@ class _OperationBarState extends State<OperationBar> {
     return [
       GestureDetector(
         child: iconData is String
-            ? ImageIcon(AssetImage(iconData), size: 33)
+            ? ImageIcon(
+                AssetImage(iconData),
+                size: 33,
+                color: Color(CSColor.yellow),
+              )
             : Icon(
                 iconData,
                 size: 35,
+                color: Color(CSColor.yellow),
               ),
         onTap: onTap,
         onLongPress: onLongPress,
@@ -157,7 +162,9 @@ class _OperationBarState extends State<OperationBar> {
             child: Row(
               children: [
                 ...getIconWithSpace('assets/images/ocr.png',
-                    onTap: _openCamera, onLongPress: _openImage),
+                    // ...getIconWithSpace(Icons.camera,
+                    onTap: _openCamera,
+                    onLongPress: _openImage),
                 Expanded(
                     child: GestureDetector(
                         onTap: _openTextInput,
@@ -184,6 +191,7 @@ class _OperationBarState extends State<OperationBar> {
                   },
                   icon: Icon(
                     Icons.tune,
+                    color: Color(CSColor.yellow),
                     size: 35,
                   ),
                   onSelected: _onMenuSelected,
