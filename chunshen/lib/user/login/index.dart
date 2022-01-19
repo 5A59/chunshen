@@ -75,7 +75,7 @@ class _LoginState extends State<LoginPage> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           image: DecorationImage(
-                              image: AssetImage('assets/images/icon.jpeg')))),
+                              image: AssetImage('assets/images/icon.png')))),
                   SizedBox(
                     height: 30,
                   ),
