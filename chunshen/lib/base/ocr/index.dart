@@ -44,6 +44,6 @@ class OcrUtils {
         print(ar["words"].toString());
       }
     }
-    return ocrContent.join("\n");
+    return ocrContent.join("");
   }
 }

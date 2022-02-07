@@ -98,9 +98,10 @@ class MoreMenu {
             onChanged: (String content) {
               listener.onCommentChanged(content);
             },
-            style: TextStyle(
-              fontSize: 15,
-            ),
+            cursorHeight: 25,
+            cursorColor: Color(CSColor.gray3),
+            style: TextStyle(fontSize: 15, height: 1.5),
+            autofocus: true,
             decoration: InputDecoration(
                 contentPadding:
                     EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
@@ -118,8 +119,16 @@ class MoreMenu {
                   onPressed: () {
                     listener.onComment(false);
                   },
-                  child: Text('取消')),
-              TextButton(onPressed: listener.onCommentUpload, child: Text('提交'))
+                  child: Text(
+                    '取消',
+                    style: TextStyle(color: Color(CSColor.lightBlack)),
+                  )),
+              TextButton(
+                  onPressed: listener.onCommentUpload,
+                  child: Text(
+                    '提交',
+                    style: TextStyle(color: Color(CSColor.lightBlack)),
+                  ))
             ],
           )
         ],

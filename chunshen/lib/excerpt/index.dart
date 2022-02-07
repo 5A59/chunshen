@@ -1,4 +1,6 @@
+import 'package:chunshen/base/widget/empty/index.dart';
 import 'package:chunshen/base/widget/loading/index.dart';
+import 'package:chunshen/main/bus.dart';
 import 'package:chunshen/main/index.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/tag.dart';
@@ -26,7 +28,7 @@ class ExcerptPage extends StatefulWidget with IOperationListener {
 }
 
 class _ExcerptState extends State<ExcerptPage>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, IExcerptOperationListener {
   List<ExcerptBean> list = [];
   List<TagBean> tagList = [];
   int page = 0;
@@ -35,6 +37,36 @@ class _ExcerptState extends State<ExcerptPage>
   GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
   GlobalKey<TagWidgetState> _tagKey = GlobalKey();
   bool refreshFlag = false;
+
+  _ExcerptState() {
+    addExcerptOperationListener(this);
+  }
+
+  @override
+  onExcerptUpdate(ExcerptBean? bean) {
+    forceRefresh();
+    // list.forEach((element) {
+    //   setState(() {
+    //     if (element.id == bean.id) {
+    //       element.comment = bean.comment;
+    //       element.excerptContent = bean.excerptContent;
+    //       element.tag = bean.tag;
+    //       element.tagId = bean.tagId;
+    //       element.image = bean.image;
+    //     }
+    //   });
+    // });
+  }
+
+  @override
+  onExcerptAdd(ExcerptBean? bean) {
+    forceRefresh();
+  }
+
+  @override
+  onExcerptDelete(ExcerptBean? bean) {
+    forceRefresh();
+  }
 
   @override
   void initState() {
@@ -81,10 +113,11 @@ class _ExcerptState extends State<ExcerptPage>
     });
   }
 
-  onExcerptDelete(int i) {
+  _onExcerptDelete(int i) {
     setState(() {
       list.removeAt(i);
     });
+    deleteExcerpt(list[i]);
   }
 
   @override
@@ -96,7 +129,7 @@ class _ExcerptState extends State<ExcerptPage>
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             SizedBox(
-              height: 40,
+              height: 60,
             ),
             Expanded(
                 child: RefreshIndicator(
@@ -118,8 +151,10 @@ class _ExcerptState extends State<ExcerptPage>
                           return ExcerptItem(
                             list[i],
                             onExcerptDelete: () {
-                              onExcerptDelete(i);
+                              _onExcerptDelete(i);
                             },
+                            key: UniqueKey(),
+                            operationListener: widget,
                           );
                         } else {
                           return Container();
@@ -127,8 +162,20 @@ class _ExcerptState extends State<ExcerptPage>
                       },
                       itemCount: list.length + 1,
                     ))),
+            if (list.length <= 0)
+              Expanded(
+                  flex: 100,
+                  child: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.only(bottom: 100),
+                      child: buildEmptyView(context)))
           ])),
-      TagWidget(onTagSelected, key: _tagKey),
+      TagWidget(
+        onTagSelected,
+        dismissWhenNoTag: true,
+        key: _tagKey,
+        defaultText: '   暂无书籍，点击右下角“管理书籍”添加',
+      ),
     ]);
   }
 

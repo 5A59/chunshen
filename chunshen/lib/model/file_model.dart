@@ -17,12 +17,12 @@ class ExcerptFileModel extends ExcerptModel {
     if (!isEmpty(bean.id)) {
       await FileServer().updateExcerpt(bean.id ?? '', bean.content ?? '',
           bean.tagId ?? '', bean.image ?? []);
-      CSResponse resp = CSResponse.normal();
+      CSResponse resp = CSResponse.normal(error: bean.id ?? '');
       return resp;
     }
-    await FileServer().addExcerpt(bean.content ?? '', bean.comment ?? '',
-        bean.tagId ?? '', bean.image ?? []);
-    CSResponse resp = CSResponse.normal();
+    String id = await FileServer().addExcerpt(bean.content ?? '',
+        bean.comment ?? '', bean.tagId ?? '', bean.image ?? []);
+    CSResponse resp = CSResponse.normal(error: id);
     return resp;
   }
 }
@@ -38,6 +38,12 @@ class TagFileModel extends TagModel {
 
   static addTag(TagBean tag) async {
     await FileServer().addTag(tag);
+    CSResponse resp = CSResponse.normal();
+    return resp;
+  }
+
+  static updateTag(TagBean newTag, TagBean oldTag) async {
+    await FileServer().updateTag(newTag, oldTag);
     CSResponse resp = CSResponse.normal();
     return resp;
   }

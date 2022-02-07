@@ -34,6 +34,7 @@ class ExcerptModel {
         : ExcerptFileModel.getExcerptListBean(page, tags);
   }
 
+  // TODO: 添加新书摘以后，服务端需要返回 id，否则本地更新会有 bug，因为没有 id，再次编辑无法删除
   static Future<CSResponse> uploadNewExcerpt(ExcerptUploadBean bean) async {
     return BaseModel.isNet()
         ? ExcerptNetModel.uploadNewExcerpt(bean)
@@ -56,6 +57,10 @@ class TagModel {
     return BaseModel.isNet()
         ? TagNetModel.addTag(tag)
         : TagFileModel.addTag(tag);
+  }
+
+  static updateTag(TagBean newTag, TagBean oldTag) async {
+    return BaseModel.isNet() ? '' : TagFileModel.updateTag(newTag, oldTag);
   }
 }
 

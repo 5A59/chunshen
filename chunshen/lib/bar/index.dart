@@ -10,19 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class OperationBar extends StatefulWidget {
-  final IOperationListener? listener;
-  OperationBar(this.listener);
+  final List<IOperationListener>? listeners;
+  OperationBar(this.listeners);
 
   @override
   State<StatefulWidget> createState() {
-    return _OperationBarState(listener: listener);
+    return _OperationBarState(listeners: listeners);
   }
 }
 
 class _OperationBarState extends State<OperationBar> {
-  final IOperationListener? listener;
+  final List<IOperationListener>? listeners;
   String? username;
-  _OperationBarState({this.listener});
+  _OperationBarState({this.listeners});
 
   @override
   void initState() {
@@ -59,7 +59,9 @@ class _OperationBarState extends State<OperationBar> {
   _openTextInput() async {
     var res = await openPage(context, PAGE_TEXT_INPUT);
     if (res != null) {
-      listener?.onExcerptUploadFinished();
+      listeners?.forEach((element) {
+        element.onExcerptUploadFinished();
+      });
     }
   }
 
@@ -72,7 +74,9 @@ class _OperationBarState extends State<OperationBar> {
         null, null, null, ExcerptContentBean(res, null), [], [], false);
     var pageRes = await openPage(context, PAGE_TEXT_INPUT, params: bean);
     if (pageRes != null) {
-      listener?.onExcerptUploadFinished();
+      listeners?.forEach((element) {
+        element.onExcerptUploadFinished();
+      });
     }
   }
 
@@ -90,8 +94,14 @@ class _OperationBarState extends State<OperationBar> {
 
   _openManageTag() async {
     var res = await openPage(context, PAGE_MANAGE_TAG);
-    if (res == true) {
-      listener?.onTagChanged();
+    if (res == 1) {
+      listeners?.forEach((element) {
+        element.onTagChanged();
+      });
+    } else if (res == 2) {
+      listeners?.forEach((element) {
+        element.onExcerptUploadFinished();
+      });
     }
   }
 
@@ -104,6 +114,7 @@ class _OperationBarState extends State<OperationBar> {
   }
 
   _exportExcerpts() async {
+    // await Permission.manageExternalStorage.request();
     String res = await FileServer().exportExcerpts();
     showMessageDialog(context, !isEmpty(res) ? '导出成功：$res' : '导出失败');
   }
@@ -121,13 +132,19 @@ class _OperationBarState extends State<OperationBar> {
       if (res) {
         showMessageDialog(context, '导入成功');
         await fileServer.reInit();
-        listener?.onExcerptUploadFinished();
+        listeners?.forEach((element) {
+          element.onExcerptUploadFinished();
+        });
       } else {
         showMessageDialog(context, '导入失败');
       }
     } else {
       showMessageDialog(context, '导入失败');
     }
+  }
+
+  _openGuide() async {
+    openPage(context, PAGE_GUIDE);
   }
 
   _onMenuSelected(String value) {
@@ -147,6 +164,9 @@ class _OperationBarState extends State<OperationBar> {
         break;
       case 'import':
         _importExcerpts();
+        break;
+      case 'guide':
+        _openGuide();
         break;
       default:
     }
@@ -170,23 +190,71 @@ class _OperationBarState extends State<OperationBar> {
                         onTap: _openTextInput,
                         child: Container(
                           decoration: BoxDecoration(
-                              border: Border.all(color: Color(CSColor.gray1))),
+                              border: Border.all(
+                                  width: 0.5, color: Color(CSColor.gray1))),
                           height: 40,
                           alignment: Alignment.center,
                           child: Text(
                             '点此输入',
-                            style: TextStyle(color: Color(CSColor.gray2)),
+                            style: TextStyle(
+                                color: Color(CSColor.gray2),
+                                fontWeight: FontWeight.bold),
                           ),
                         ))),
                 PopupMenuButton<String>(
                   itemBuilder: (BuildContext context) {
                     return [
-                      PopupMenuItem(value: 'export', child: Text('导出书摘')),
-                      PopupMenuItem(value: 'import', child: Text('导入书摘')),
-                      PopupMenuItem(value: 'book', child: Text('管理书籍')),
                       PopupMenuItem(
-                          value: 'login',
-                          child: Text(isEmpty(username) ? '登录' : username!))
+                          value: 'export',
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.file_download),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('导出书摘'),
+                            ],
+                          )),
+                      PopupMenuItem(
+                          value: 'import',
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.file_upload),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('导入书摘'),
+                            ],
+                          )),
+                      PopupMenuItem(
+                          value: 'book',
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.book),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('管理书籍'),
+                            ],
+                          )),
+                      PopupMenuItem(
+                          value: 'guide',
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(Icons.find_in_page),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('使用指南'),
+                            ],
+                          )),
+                      // PopupMenuItem(
+                      //     value: 'login',
+                      //     child: Text(isEmpty(username) ? '登录' : username!))
                     ];
                   },
                   icon: Icon(

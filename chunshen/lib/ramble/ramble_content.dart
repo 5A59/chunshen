@@ -2,6 +2,7 @@ import 'package:chunshen/base/widget/image/big_image.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/excerpt/excerpt_item.dart';
 import 'package:chunshen/excerpt/more_menu.dart';
+import 'package:chunshen/main/bus.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/style/index.dart';
@@ -85,7 +86,7 @@ class RambleContentState extends State<RambleContent> implements IMenuListener {
   Widget build(BuildContext context) {
     ExcerptBean? bean = widget.bean;
     return Container(
-      padding: EdgeInsets.only(bottom: 50, left: 20, right: 20, top: 50),
+      padding: EdgeInsets.only(bottom: 50, left: 20, right: 20, top: 20),
       child: NotificationListener(
           onNotification: onNotification,
           child: SingleChildScrollView(
@@ -103,7 +104,7 @@ class RambleContentState extends State<RambleContent> implements IMenuListener {
                   space,
                   Text(
                     bean?.excerptContent?.content ?? '',
-                    style: TextStyle(fontSize: 16, height: 1.7),
+                    style: TextStyle(fontSize: 16, height: 2),
                   ),
                   space,
                   Row(
@@ -156,12 +157,15 @@ class RambleContentState extends State<RambleContent> implements IMenuListener {
   }
 
   @override
-  onDeleteSuccess() {}
+  onDeleteSuccess() {
+    deleteExcerpt(widget.bean);
+  }
 
   @override
   onEdit(ExcerptUploadBean? bean) {
     if (bean != null) {
       refreshExcerpt(bean);
+      updateExcerpt(widget.bean);
     }
   }
 
@@ -184,6 +188,7 @@ class RambleContentState extends State<RambleContent> implements IMenuListener {
       setState(() {
         widget.bean?.comment.add(commentBean);
       });
+      updateExcerpt(widget.bean);
     } else {
       toast('提交失败，请稍后重试～');
     }

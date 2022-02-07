@@ -1,16 +1,26 @@
+import 'package:chunshen/base/widget/empty/index.dart';
 import 'package:chunshen/base/widget/loading/index.dart';
+import 'package:chunshen/main/bus.dart';
+import 'package:chunshen/main/index.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/ramble/ramble_content.dart';
 import 'package:flutter/material.dart';
 
-class RamblePage extends StatefulWidget {
+class RamblePage extends StatefulWidget with IOperationListener {
+  _RambleState state = _RambleState();
+
   @override
-  _RambleState createState() => _RambleState();
+  _RambleState createState() => state;
+
+  @override
+  onExcerptUploadFinished() {
+    state.getRambleData();
+  }
 }
 
 class _RambleState extends State<RamblePage>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, IExcerptOperationListener {
   List<Widget> pages = [];
   List<ExcerptBean> excerptData = [];
   Map<String, ExcerptBean> excerptMap = {};
@@ -20,6 +30,44 @@ class _RambleState extends State<RamblePage>
     viewportFraction: 1,
     keepPage: true,
   );
+
+  _RambleState() {
+    addExcerptOperationListener(this);
+  }
+
+  @override
+  onExcerptDelete(ExcerptBean? bean) {
+    for (int i = 0; i < excerptData.length; i++) {
+      if (bean?.id == excerptData[i].id) {
+        excerptData.removeAt(i);
+        excerptMap.remove(bean?.id);
+        pages.removeAt(i);
+      }
+    }
+    setState(() {
+      pages = [...pages];
+    });
+  }
+
+  @override
+  onExcerptUpdate(ExcerptBean? bean) {
+    if (bean == null) {
+      return;
+    }
+    for (int i = 0; i < excerptData.length; i++) {
+      if (bean.id == excerptData[i].id) {
+        excerptData[i] = bean;
+        excerptMap[bean.id ?? ''] = bean;
+        pages[i] = RambleContent(
+          bean,
+          parentController: _pageController,
+        );
+      }
+    }
+    setState(() {
+      pages = [...pages];
+    });
+  }
 
   @override
   void initState() {
@@ -95,7 +143,12 @@ class _RambleState extends State<RamblePage>
                     height: 50,
                     child: SizedBox(
                         width: 50, height: 50, child: BallBounceLoading()))
-                : Container())
+                : Container()),
+        if (pages.length <= 0)
+          Container(
+            alignment: Alignment.center,
+            child: buildEmptyView(context),
+          )
       ],
     ));
   }

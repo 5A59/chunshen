@@ -5,6 +5,7 @@ import 'package:chunshen/net/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddTagPage extends StatefulWidget {
   @override
@@ -15,10 +16,13 @@ class AddTagPage extends StatefulWidget {
 
 class _AddTagState extends State<AddTagPage> {
   String? content;
+  String? head;
   List<TagBean> result = [];
+  ImagePicker _picker = ImagePicker();
+
   final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(3),
-      borderSide: BorderSide(color: Color(CSColor.gray3)));
+      borderSide: BorderSide(width: 0.5, color: Color(CSColor.gray3)));
 
   void _search() async {
     if (content == null) {
@@ -42,6 +46,9 @@ class _AddTagState extends State<AddTagPage> {
           onEditingComplete: _search,
           textInputAction: TextInputAction.search,
           cursorColor: Color(CSColor.gray3),
+          cursorHeight: 25,
+          style: TextStyle(height: 1.4),
+          autofocus: true,
           decoration: InputDecoration(
             hintText: '输入书名搜索',
             contentPadding:
@@ -116,43 +123,10 @@ class _AddTagState extends State<AddTagPage> {
   }
 
   void _addTagBySelf() {
-    String name = '';
-    AlertDialog dialog = AlertDialog(
-      title: Text('添加书籍'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            decoration: InputDecoration(hintText: '输入书名'),
-            onChanged: (String value) {
-              name = value;
-            },
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextButton(
-              onPressed: () {
-                if (!isEmpty(name)) {
-                  _addTag(TagBean('', '', name, '', true), callback: (res) {
-                    if (res == true) {
-                      hideDialog(context);
-                    }
-                  });
-                }
-              },
-              child: Text(
-                '确认',
-                style: TextStyle(color: Color(CSColor.lightBlack)),
-              ))
-        ],
-      ),
-    );
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return dialog;
-        });
+    addOrUpdateTag(context, false, (TagBean newTag) {
+      _addTag(newTag);
+      return true;
+    }, null);
   }
 
   @override

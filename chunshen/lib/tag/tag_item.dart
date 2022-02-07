@@ -27,14 +27,25 @@ class _TagItemState extends State<TagItem> {
             widget.onSelected?.call(widget.tag, selected);
           });
         },
-        child: Container(
-            padding: EdgeInsets.all(4),
-            decoration: BoxDecoration(
-                border: Border.all(color: Color(color), width: 0.5),
-                borderRadius: BorderRadius.circular(3)),
-            child: Text(
-              widget.tag?.content ?? '',
-              style: TextStyle(color: Color(color)),
-            )));
+        child: !selected
+            ? Container(
+                padding: EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Color(color), width: 0.5),
+                    borderRadius: BorderRadius.circular(3)),
+                child: Text(
+                  widget.tag?.content ?? '',
+                  style: TextStyle(color: Color(color)),
+                ))
+            : Container(
+                padding: EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                    color: Color(color),
+                    border: Border.all(color: Color(color), width: 0.5),
+                    borderRadius: BorderRadius.circular(3)),
+                child: Text(
+                  widget.tag?.content ?? '',
+                  style: TextStyle(color: Colors.white),
+                )));
   }
 }

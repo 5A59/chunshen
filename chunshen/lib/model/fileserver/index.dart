@@ -32,17 +32,18 @@ class FileServer {
   FileServer._();
 
   _getExtraPath() async {
-    Directory? dir = Platform.isAndroid
-        ? await getExternalStorageDirectory()
-        : await getApplicationDocumentsDirectory();
+    String? dir = Platform.isAndroid
+        // ? await getExternalStoragePublicDirectory('Download')
+        ? (await getExternalStorageDirectory())?.path
+        : (await getApplicationDocumentsDirectory()).path;
     return dir;
   }
 
   exportExcerpts() async {
     String dir = (await getApplicationDocumentsDirectory()).path;
     Directory serverDir = Directory('$dir/chunshen');
-    Directory targetDir = await _getExtraPath();
-    String target = '${targetDir.path}/chunshen';
+    String targetDir = serverDir.path; // await _getExtraPath();
+    String target = '$targetDir/chunshen';
     String contentDir = '$target/content.zip';
     bool res = await ZipUtils.zip(serverDir.path, contentDir);
     if (!res) {
@@ -52,12 +53,17 @@ class FileServer {
     checkFile.createSync();
     String md5Str = md5.convert(File(contentDir).readAsBytesSync()).toString();
     checkFile.writeAsStringSync(md5Str);
-    String targetFile = '${targetDir.path}/chunshen.zip';
+    String targetFile = '$targetDir/chunshen.zip';
     res = await ZipUtils.zip(target, targetFile);
-    if (!res) {
-      return '';
+    if (Platform.isAndroid) {
+      String finalFile =
+          await writeToDownload(targetFile, "chunshen.zip", ".zip");
+      File(targetFile).deleteSync(recursive: true);
+      File(target).deleteSync(recursive: true);
+      return finalFile;
+    } else {
+      return targetFile;
     }
-    return targetFile;
   }
 
   importExcerpts(String zipPath) async {
@@ -85,9 +91,9 @@ class FileServer {
     await _init();
   }
 
-  Future<void> _init() async {
+  Future<void> _init({bool force = false}) async {
     await _lock.synchronized(() async {
-      if (_hasInit) {
+      if (_hasInit && !force) {
         return;
       }
       this.tagFiles = {};
@@ -180,7 +186,11 @@ class FileServer {
       int end = min(start + PAGE_COUNT, files.length);
       List<String> tmpFiles = files.sublist(start, end);
       await Future.forEach<String>(tmpFiles, (element) async {
-        String content = await File(_getFullPath(element)).readAsString();
+        File file = File(_getFullPath(element));
+        if (!file.existsSync()) {
+          return;
+        }
+        String content = await file.readAsString();
         ExcerptBean excerptBean = _getExcerptInner(content);
         excerpts.add(excerptBean);
       });
@@ -253,18 +263,22 @@ class FileServer {
         id,
         tagId,
         null,
-        ExcerptContentBean(content, null),
+        ExcerptContentBean(content, new DateTime.now().millisecondsSinceEpoch),
         isEmpty(comment) ? [] : [ExcerptCommentBean(null, comment, null)],
         images,
         false);
     String path = tagId + '/' + id;
     File file = File(_getFullPath(path));
     if (!file.existsSync()) {
+      if (!file.parent.existsSync()) {
+        file.parent.createSync();
+      }
       file.createSync();
     }
     await file.writeAsString(jsonEncode(bean.toJson()));
     tagFiles[tagId]?.add(path);
     excerptIdFiles[id] = path;
+    return id;
   }
 
   updateExcerpt(
@@ -281,7 +295,10 @@ class FileServer {
   addTag(TagBean bean) async {
     await _init();
     String path = this.path + '/' + (bean.content ?? '');
-    Directory(this.serverDir + '/' + path).createSync(recursive: true);
+    Directory dir = Directory(this.serverDir + '/' + path);
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
+    }
     tagFiles[path] = [];
     bean.id = path;
     String tags = await File(tagListPath).readAsString();
@@ -289,6 +306,25 @@ class FileServer {
     beanList.list.add(bean);
     this.tags[path] = bean;
     await File(tagListPath).writeAsString(jsonEncode(beanList.toJson()));
+  }
+
+  updateTag(TagBean newTag, TagBean oldTag) async {
+    await _init();
+    String oldPath = this.path + '/' + (oldTag.content ?? '');
+    Directory oldDir = Directory(this.serverDir + '/' + oldPath);
+    if (!oldDir.existsSync()) {
+      oldDir.createSync(recursive: true);
+    }
+    String tags = await File(tagListPath).readAsString();
+    TagListBean beanList = TagListBean.fromJson(csJsonDecode(tags));
+    beanList.list.forEach((element) {
+      if (element.id == oldTag.id && element.content == oldTag.content) {
+        element.content = newTag.content;
+        element.head = newTag.head;
+      }
+    });
+    await File(tagListPath).writeAsString(jsonEncode(beanList.toJson()));
+    await _init(force: true);
   }
 
   deleteTag(String id) async {

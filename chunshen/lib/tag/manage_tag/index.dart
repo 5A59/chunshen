@@ -15,10 +15,14 @@ class ManageTagPage extends StatefulWidget {
 }
 
 class _ManageTagState extends State<ManageTagPage> {
+  static const int FLAG_NO_CHANGE = 0;
+  static const int FLAG_ADD = 1;
+  static const int FLAG_UPDATE_OR_DELETE = 2;
+
   String? content;
   List<TagBean> tagList = [];
   Offset? _tapPosition;
-  bool changed = false;
+  int changed = FLAG_NO_CHANGE;
 
   @override
   void initState() {
@@ -38,7 +42,7 @@ class _ManageTagState extends State<ManageTagPage> {
     if (CSResponse.success(resp)) {
       toast('删除成功');
       _load();
-      changed = true;
+      changed = FLAG_UPDATE_OR_DELETE;
     } else {
       toast('删除失败，请稍后重试～');
     }
@@ -48,11 +52,17 @@ class _ManageTagState extends State<ManageTagPage> {
     if (_tapPosition != null) {
       showMenuAtPosition(context, _tapPosition!, [
         PopupMenuItem(
+          child: Text('编辑'),
+          value: 'edit',
+        ),
+        PopupMenuItem(
           child: Text('删除'),
           value: 'delete',
         )
       ], onSelected: (value) {
-        if (value == 'delete') {
+        if (value == 'edit') {
+          _updateTagDialog(bean);
+        } else if (value == 'delete') {
           showNorlmalDialog(context, '提示', '是否确认删除书籍？\n删除书籍后，书籍所关联的所有书摘都会被删除',
               '取消', '确认', null, () {
             _deleteTag(bean);
@@ -62,6 +72,23 @@ class _ManageTagState extends State<ManageTagPage> {
     }
   }
 
+  void _updateTag(TagBean newTag, TagBean oldTag) async {
+    showLoading(context);
+    CSResponse resp = await TagModel.updateTag(newTag, oldTag);
+    if (CSResponse.success(resp)) {
+      _load();
+    }
+    changed = FLAG_UPDATE_OR_DELETE;
+    hideLoading(context);
+  }
+
+  void _updateTagDialog(TagBean bean) {
+    addOrUpdateTag(context, true, (TagBean newTag) {
+      _updateTag(newTag, bean);
+      return true;
+    }, bean);
+  }
+
   _storePosition(TapDownDetails details) {
     _tapPosition = details.globalPosition;
   }
@@ -69,7 +96,7 @@ class _ManageTagState extends State<ManageTagPage> {
   Widget _buildItem(TagBean bean) {
     return GestureDetector(
         onTapDown: _storePosition,
-        onLongPress: () {
+        onTap: () {
           _showMenu(bean);
         },
         child: Container(
@@ -94,7 +121,7 @@ class _ManageTagState extends State<ManageTagPage> {
   _addTag() async {
     var res = await openPage(context, PAGE_ADD_TAG);
     if (res == true) {
-      changed = true;
+      changed = FLAG_ADD;
       _load();
     }
   }

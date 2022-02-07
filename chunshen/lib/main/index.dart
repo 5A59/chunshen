@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class IOperationListener {
   onExcerptUploadFinished() {}
+
   onTagChanged() {}
 }
 
@@ -60,22 +61,34 @@ class _MainState extends State<MainPage> {
                 TabBar(
                   isScrollable: true,
                   tabs: [
-                    Tab(text: '书摘'),
-                    Tab(text: '漫步'),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 5),
+                      child: Text('书摘',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 5),
+                      child: Text('漫步',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
                   ],
                   indicatorSize: TabBarIndicatorSize.label,
                   indicatorColor: Colors.black,
                   labelColor: Colors.black,
                   unselectedLabelColor: Color(CSColor.gray3),
                 ),
+                SizedBox(
+                  height: 10,
+                ),
                 Expanded(
                     child: TabBarView(children: [excerptPage, ramblePage])),
                 Divider(
                   height: 1,
-                  thickness: 1,
                 ),
                 OperationBar(
-                  excerptPage,
+                  [excerptPage, ramblePage],
                 )
               ],
             ),

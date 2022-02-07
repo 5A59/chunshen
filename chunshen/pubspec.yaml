@@ -70,6 +70,7 @@ flutter:
   assets:
     - assets/images/ocr.png
     - assets/images/icon.png
+    - assets/images/icon_no_bg.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

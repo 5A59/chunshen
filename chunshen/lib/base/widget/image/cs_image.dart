@@ -13,6 +13,8 @@ class CSImage {
             width: width,
             height: height,
             child: Container(
+              padding: EdgeInsets.all(15),
+              child: Image(image: AssetImage('assets/images/icon_no_bg.png')),
               color: Color(CSColor.gray),
             ),
           );

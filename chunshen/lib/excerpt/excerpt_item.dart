@@ -1,6 +1,8 @@
 import 'package:chunshen/base/widget/image/big_image.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/excerpt/more_menu.dart';
+import 'package:chunshen/main/bus.dart';
+import 'package:chunshen/main/index.dart';
 import 'package:chunshen/model/excerpt.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
@@ -123,25 +125,30 @@ class ExcerptContentItem extends StatefulWidget {
   final ExcerptBean? bean;
   final Function? onCommentAdded;
   final Function? onExcerptDeleted;
+  final IOperationListener? operationListener;
 
-  ExcerptContentItem(this.bean, this.onCommentAdded, this.onExcerptDeleted);
+  ExcerptContentItem(this.bean, this.onCommentAdded, this.onExcerptDeleted,
+      {this.operationListener});
 
   @override
   State<StatefulWidget> createState() {
-    return ExcerptContentItemState();
+    return _ExcerptContentItemState(this.bean);
   }
 }
 
-class ExcerptContentItemState extends State<ExcerptContentItem>
+class _ExcerptContentItemState extends State<ExcerptContentItem>
     implements IMenuListener {
+  ExcerptBean? bean;
   final InputBorder border = InputBorder.none;
   bool showCommentInput = false;
   String? comment = '';
   late MoreMenu moreMenu;
 
+  _ExcerptContentItemState(this.bean);
+
   @override
   void initState() {
-    moreMenu = MoreMenu(widget.bean, context, this);
+    moreMenu = MoreMenu(this.bean, context, this);
     super.initState();
   }
 
@@ -169,6 +176,9 @@ class ExcerptContentItemState extends State<ExcerptContentItem>
       widget.bean?.excerptContent?.content = uploadBean.content;
       widget.bean?.tag?.id = uploadBean.tagId;
       widget.bean?.image = uploadBean.image;
+      if (!isEmpty(uploadBean.id)) {
+        widget.bean?.id = uploadBean.id;
+      }
       if (!isEmpty(uploadBean.tagName)) {
         widget.bean?.tag?.content = uploadBean.tagName;
       }
@@ -184,7 +194,7 @@ class ExcerptContentItemState extends State<ExcerptContentItem>
       return;
     }
     ExcerptCommentBean? commentBean =
-        await CommentModel.uploadNewComment(widget.bean?.id, comment);
+        await CommentModel.uploadNewComment(this.bean?.id, comment);
     if (commentBean != null) {
       toast('提交成功');
       triggerCommentInput(false);
@@ -219,19 +229,44 @@ class ExcerptContentItemState extends State<ExcerptContentItem>
     );
   }
 
+  _buildHead(TagBean? tag) {
+    if (isEmpty(tag?.head)) {
+      return ClipOval(
+          child: SizedBox(
+        width: 50,
+        height: 50,
+        child: Container(
+          padding: EdgeInsets.all(10),
+          alignment: Alignment.center,
+          child: Image(image: AssetImage('assets/images/icon_no_bg.png')),
+          color: Color(CSColor.gray),
+        ),
+      ));
+    }
+    return ClipOval(child: CSImage.buildImage(tag?.head, 50, 50));
+  }
+
   @override
   Widget build(BuildContext context) {
-    TagBean? tag = widget.bean?.tag;
-    ExcerptContentBean? bean = widget.bean?.excerptContent;
+    TagBean? tag = this.bean?.tag;
+    ExcerptContentBean? bean = this.bean?.excerptContent;
     return bean != null
         ? Column(
             children: [
-              Text(
-                tag?.content ?? '',
-                style: TextStyle(
-                    fontSize: 20,
-                    color: Color(CSColor.lightBlack),
-                    fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  _buildHead(tag),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    tag?.content ?? '',
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Color(CSColor.lightBlack),
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
               SizedBox(height: 10),
               GestureDetector(
@@ -239,7 +274,7 @@ class ExcerptContentItemState extends State<ExcerptContentItem>
                   copyToClipboard(bean.content);
                 },
                 child: Text(bean.content ?? '',
-                    style: TextStyle(fontSize: 16, height: 1.7)),
+                    style: TextStyle(fontSize: 16, height: 2)),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -248,12 +283,15 @@ class ExcerptContentItemState extends State<ExcerptContentItem>
                     formatTime(bean.time) ?? '',
                     style: TextStyle(color: Color(CSColor.gray2)),
                   ),
+                  Expanded(
+                    child: Container(),
+                  ),
                   buildMoreMenu()
                 ],
               ),
-              if (hasImage(widget.bean)) SizedBox(height: 15),
-              if (hasImage(widget.bean)) buildImage(widget.bean?.image ?? []),
-              if (hasImage(widget.bean)) SizedBox(height: 15),
+              if (hasImage(this.bean)) SizedBox(height: 15),
+              if (hasImage(this.bean)) buildImage(this.bean?.image ?? []),
+              if (hasImage(this.bean)) SizedBox(height: 15),
               showCommentInput ? buildCommentInput() : Container()
             ],
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +307,9 @@ class ExcerptContentItemState extends State<ExcerptContentItem>
   @override
   onEdit(ExcerptUploadBean? bean) {
     if (bean != null) {
-      refreshExcerpt(bean);
+      // refreshExcerpt(bean);
+      widget.operationListener?.onExcerptUploadFinished();
+      updateExcerpt(widget.bean);
     }
   }
 
@@ -286,30 +326,40 @@ class ExcerptContentItemState extends State<ExcerptContentItem>
   @override
   onCommentUpload() {
     uploadComment();
+    updateExcerpt(widget.bean);
   }
 }
 
 class ExcerptItem extends StatefulWidget {
   final ExcerptBean bean;
   final Function? onExcerptDelete;
-  ExcerptItem(this.bean, {this.onExcerptDelete});
+  final IOperationListener? operationListener;
+  Key? key;
+
+  ExcerptItem(this.bean,
+      {this.onExcerptDelete, this.key, this.operationListener})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return ExcerptItemState();
+    return _ExcerptItemState(this.bean);
   }
 }
 
-class ExcerptItemState extends State<ExcerptItem> {
+class _ExcerptItemState extends State<ExcerptItem> {
+  final ExcerptBean bean;
+
+  _ExcerptItemState(this.bean);
+
   onCommentAdded(ExcerptCommentBean comment) {
     setState(() {
-      widget.bean.comment.add(comment);
+      this.bean.comment.add(comment);
     });
   }
 
   onCommentDeleted(ExcerptCommentBean comment) {
     setState(() {
-      widget.bean.comment.remove(comment);
+      this.bean.comment.remove(comment);
     });
   }
 
@@ -317,62 +367,37 @@ class ExcerptItemState extends State<ExcerptItem> {
     widget.onExcerptDelete?.call();
   }
 
-  _buildHead(TagBean? tag) {
-    if (isEmpty(tag?.head)) {
-      if (!isEmpty(tag?.content)) {
-        return SizedBox(
-          width: 50,
-          height: 80,
-          child: Container(
-            alignment: Alignment.center,
-            child: Text(
-              tag?.content?.substring(0, 1) ?? '',
-              style: TextStyle(
-                  color: Color(CSColor.blue),
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold),
-            ),
-            color: Color(CSColor.gray),
-          ),
-        );
-      }
-    }
-    return CSImage.buildImage(tag?.head, 50, 80);
-  }
-
   @override
   Widget build(BuildContext context) {
-    ExcerptBean bean = widget.bean;
+    ExcerptBean bean = this.bean;
     return Container(
-        margin: EdgeInsets.only(top: 20),
+        padding: EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // CSImage.buildImage(bean.tag?.head, 50, 80),
-                _buildHead(bean.tag),
-                SizedBox(
-                  width: 20,
-                ),
                 Flexible(
                   child: ExcerptContentItem(
-                      bean, onCommentAdded, onExcerptDeleted),
+                    bean,
+                    onCommentAdded,
+                    onExcerptDeleted,
+                    operationListener: widget.operationListener,
+                  ),
                 )
               ],
             ),
             SizedBox(height: 15),
             Container(
-                padding: EdgeInsets.only(left: 60),
+                // padding: EdgeInsets.only(left: 60),
                 child: ExcerptCommentItem(
-                  bean,
-                  bean.comment,
-                  onCommentDeleted: onCommentDeleted,
-                )),
+              bean,
+              bean.comment,
+              onCommentDeleted: onCommentDeleted,
+            )),
             Divider(
-              height: 1.0,
-              indent: 60.0,
+              height: 10,
               color: Color(CSColor.gray2),
             ),
           ],

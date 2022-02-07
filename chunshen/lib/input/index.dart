@@ -30,6 +30,7 @@ class _TextInputState extends State<TextInputPage> {
   InputBorder border = InputBorder.none;
   String? content = '';
   String? comment = '';
+  String? oldTagId = '';
   String? tagId = '';
   List<String> imageList = [];
   ImagePicker _picker = ImagePicker();
@@ -49,6 +50,7 @@ class _TextInputState extends State<TextInputPage> {
     bean = widget.settings?.arguments as ExcerptBean?;
     if (bean != null) {
       tagId = bean?.tag?.id;
+      oldTagId = tagId;
       content = bean?.excerptContent?.content;
       textEditingController.text = content ?? '';
       textEditingController.selection = TextSelection.fromPosition(
@@ -69,12 +71,15 @@ class _TextInputState extends State<TextInputPage> {
           controller: textEditingController,
           cursorColor: Color(CSColor.gray3),
           onChanged: onChanged,
+          cursorHeight: 27,
+          style: TextStyle(fontSize: 18, height: 1.4),
+          autofocus: true,
           decoration: InputDecoration(
               border: border,
               enabledBorder: border,
               focusedBorder: border,
               hintText: hint),
-          maxLines: big ? 10 : 5,
+          maxLines: big ? 15 : 5,
         ));
   }
 
@@ -101,19 +106,26 @@ class _TextInputState extends State<TextInputPage> {
         images.addAll(imageList);
       }
     }
-    ExcerptUploadBean bean = update
+    ExcerptUploadBean bean = (update && tagId == oldTagId)
         ? ExcerptUploadBean(tagId, content, comment,
             id: this.bean?.id, image: images)
         : ExcerptUploadBean(tagId, content, comment, image: images);
     CSResponse resp = await ExcerptModel.uploadNewExcerpt(bean);
-    hideLoading(context);
     if (resp.status == 0) {
       // success
       Fluttertoast.showToast(msg: update ? '更新成功' : '上传成功');
+      if (resp.data != 'data' && !isEmpty(resp.data)) {
+        bean.id = resp.data;
+      }
       bean.tagImage = selectedTag?.head;
       bean.tagName = selectedTag?.content;
+      if (tagId != oldTagId) {
+        await DeleteModel.deleteExcerpt(this.bean?.id);
+      }
+      hideLoading(context);
       finishPage(context, params: bean);
     } else {
+      hideLoading(context);
       // fail
       Fluttertoast.showToast(msg: '上传失败，请稍后重试～');
     }
@@ -156,7 +168,7 @@ class _TextInputState extends State<TextInputPage> {
     if (isEmpty(content)) {
       content = res;
     } else {
-      content = content ?? '' + '\n';
+      content = content ?? '' + '\n' + res;
     }
     textEditingController.text = content ?? '';
     textEditingController.selection = TextSelection.fromPosition(
@@ -238,7 +250,8 @@ class _TextInputState extends State<TextInputPage> {
                 ))
           ],
         ),
-        body: Stack(children: [
+        body: Container(
+            child: Stack(children: [
           SingleChildScrollView(
               child: Container(
             child: Padding(
@@ -271,10 +284,10 @@ class _TextInputState extends State<TextInputPage> {
                     height: 10,
                     color: Color(CSColor.gray5),
                   ),
-                  if (!update)
-                    getTextField('这里来点想法', false, (String text) {
-                      comment = text;
-                    }),
+                  // if (!update)
+                  //   getTextField('这里来点想法', false, (String text) {
+                  //     comment = text;
+                  //   }),
                 ],
               ),
             ),
@@ -285,8 +298,9 @@ class _TextInputState extends State<TextInputPage> {
               multiSelect: false,
               defaultTags: tagId != null ? [tagId!] : [],
               showAdd: true,
+              defaultText: '   暂无书籍，点击右侧“加号”添加',
             ),
           )
-        ]));
+        ])));
   }
 }

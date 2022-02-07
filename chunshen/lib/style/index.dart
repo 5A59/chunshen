@@ -1,5 +1,6 @@
 class CSColor {
   static const int white = 0xFFFFFFFF;
+  static const int white1 = 0x00FFFFFF;
   static const int black = 0xFF000000;
   static const int lightBlack = 0xFF232323;
   static const int blue = 0xFF6795DF;

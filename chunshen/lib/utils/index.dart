@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:chunshen/base/ocr/index.dart';
+import 'package:chunshen/base/widget/image/cs_image.dart';
+import 'package:chunshen/model/tag.dart';
+import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,6 +12,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+
+const MethodChannel _channel = const MethodChannel('ext_storage');
 
 openPage(BuildContext context, page, {params}) {
   return Navigator.pushNamed(context, page, arguments: params);
@@ -182,4 +187,99 @@ Future<String> ocr(BuildContext context, XFile? image) async {
     }
   }
   return res;
+}
+
+_addImage(Function? callback) async {
+  ImagePicker _picker = ImagePicker();
+  XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  if (image != null) {
+    callback?.call(image.path);
+  }
+}
+
+Widget _buildImage(String head, Function? callback) {
+  return GestureDetector(
+      onTap: () {
+        _addImage(callback);
+      },
+      child: Column(
+        children: [
+          isEmpty(head)
+              ? Container(
+                  width: 70,
+                  height: 100,
+                  color: Color(CSColor.gray),
+                  child: Icon(Icons.add))
+              : CSImage.buildImage(head, 70, 100),
+        ],
+      ));
+}
+
+void addOrUpdateTag(BuildContext context, bool update,
+    bool Function(TagBean)? callback, TagBean? oldTag) {
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String head = oldTag?.head ?? '';
+        String? content = oldTag?.content;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            AlertDialog dialog = AlertDialog(
+              title: Text(update ? '编辑书籍' : '添加书籍'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildImage(head, (path) {
+                    setState(() {
+                      head = path;
+                    });
+                  }),
+                  TextField(
+                    cursorColor: Color(CSColor.gray3),
+                    cursorHeight: 25,
+                    style: TextStyle(height: 1.4),
+                    autofocus: true,
+                    decoration: InputDecoration(hintText: '输入书名'),
+                    controller: TextEditingController()..text = content ?? '',
+                    onChanged: (String value) {
+                      content = value;
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        if (!isEmpty(content)) {
+                          bool? res = callback
+                              ?.call(TagBean('', head, content, '', true));
+                          if (res == true) {
+                            hideDialog(context);
+                          }
+                        }
+                      },
+                      child: Text(
+                        '确认',
+                        style: TextStyle(color: Color(CSColor.lightBlack)),
+                      ))
+                ],
+              ),
+            );
+            return dialog;
+          },
+        );
+      });
+}
+
+Future<String> getExternalStoragePublicDirectory(String type) async {
+  if (!Platform.isAndroid) {
+    throw UnsupportedError("Only android supported");
+  }
+  return await _channel
+      .invokeMethod('getExternalStoragePublicDirectory', {"type": type});
+}
+
+Future<String> writeToDownload(String path, String name, String type) async {
+  return await _channel.invokeMethod(
+      'writeToDownload', {'path': path, "name": name, "type": type});
 }
