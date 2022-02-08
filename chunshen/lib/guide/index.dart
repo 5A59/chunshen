@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
 
 class GuidePage extends StatefulWidget {
   GuidePage();
@@ -22,6 +25,7 @@ class _GuideState extends State<GuidePage> {
   @override
   void initState() {
     super.initState();
+    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
   List<Widget> _buildPageIndicator() {
@@ -62,6 +66,21 @@ class _GuideState extends State<GuidePage> {
       ),
     );
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //       appBar: AppBar(
+  //         elevation: 0,
+  //         backgroundColor: Color(CSColor.white),
+  //         title: Text('使用指南'),
+  //       ),
+  //       body: Container(
+  //         child: WebView(
+  //           initialUrl: 'https://shimo.im/docs/PYwVXcgYDDgwCYCp/',
+  //         ),
+  //       ));
+  // }
 
   @override
   Widget build(BuildContext context) {

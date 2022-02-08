@@ -131,7 +131,6 @@ class _OperationBarState extends State<OperationBar> {
       bool res = await fileServer.importExcerpts(path!);
       if (res) {
         showMessageDialog(context, '导入成功');
-        await fileServer.reInit();
         listeners?.forEach((element) {
           element.onExcerptUploadFinished();
         });
@@ -209,7 +208,10 @@ class _OperationBarState extends State<OperationBar> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Icon(Icons.file_download),
+                              Icon(
+                                Icons.file_download,
+                                color: Color(CSColor.yellow),
+                              ),
                               SizedBox(
                                 width: 10,
                               ),
@@ -221,7 +223,8 @@ class _OperationBarState extends State<OperationBar> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Icon(Icons.file_upload),
+                              Icon(Icons.file_upload,
+                                  color: Color(CSColor.yellow)),
                               SizedBox(
                                 width: 10,
                               ),
@@ -233,7 +236,10 @@ class _OperationBarState extends State<OperationBar> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Icon(Icons.book),
+                              Icon(
+                                Icons.book,
+                                color: Color(CSColor.yellow),
+                              ),
                               SizedBox(
                                 width: 10,
                               ),
@@ -245,7 +251,8 @@ class _OperationBarState extends State<OperationBar> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Icon(Icons.find_in_page),
+                              Icon(Icons.find_in_page,
+                                  color: Color(CSColor.yellow)),
                               SizedBox(
                                 width: 10,
                               ),

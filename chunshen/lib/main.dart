@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
           primaryColor: Color(CSColor.white)),
       home: MyHomePage(),
       initialRoute: 'home',
+      debugShowCheckedModeBanner: false,
       onGenerateRoute: (RouteSettings settings) {
         Map<String, WidgetBuilder> routes = <String, WidgetBuilder>{
           PAGE_HOME: (context) => MyHomePage(),

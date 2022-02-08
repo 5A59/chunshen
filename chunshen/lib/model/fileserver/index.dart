@@ -67,6 +67,8 @@ class FileServer {
   }
 
   importExcerpts(String zipPath) async {
+    // 旧 tag
+    TagListBean tagListBean = await getTags();
     String dir = (await getApplicationDocumentsDirectory()).path;
     String serverDir = '$dir/chunshen';
     bool res = await ZipUtils.unZip(zipPath, serverDir);
@@ -83,6 +85,21 @@ class FileServer {
     res = await ZipUtils.unZip(contentZip, serverDir);
     File(contentZip).deleteSync();
     checkFile.deleteSync();
+    await reInit();
+    TagListBean newTagList = await getTags();
+    newTagList.list.removeWhere((newE) {
+      bool res = false;
+      tagListBean.list.forEach((oldE) {
+        if (newE.id == oldE.id) {
+          res = true;
+        }
+      });
+      return res;
+    });
+    newTagList.list.forEach((newE) {});
+    tagListBean.list.addAll(newTagList.list);
+    await File(tagListPath).writeAsString(jsonEncode(tagListBean.toJson()));
+    await _init(force: true);
     return res;
   }
 
