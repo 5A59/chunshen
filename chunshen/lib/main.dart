@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chunshen/base/widget/text_selector/index.dart';
 import 'package:chunshen/config.dart';
 import 'package:chunshen/guide/index.dart';

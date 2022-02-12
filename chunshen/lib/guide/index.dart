@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
-// import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class GuidePage extends StatefulWidget {
   GuidePage();
@@ -25,7 +25,7 @@ class _GuideState extends State<GuidePage> {
   @override
   void initState() {
     super.initState();
-    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
   List<Widget> _buildPageIndicator() {
@@ -67,21 +67,6 @@ class _GuideState extends State<GuidePage> {
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //       appBar: AppBar(
-  //         elevation: 0,
-  //         backgroundColor: Color(CSColor.white),
-  //         title: Text('使用指南'),
-  //       ),
-  //       body: Container(
-  //         child: WebView(
-  //           initialUrl: 'https://shimo.im/docs/PYwVXcgYDDgwCYCp/',
-  //         ),
-  //       ));
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,30 +76,45 @@ class _GuideState extends State<GuidePage> {
           title: Text('使用指南'),
         ),
         body: Container(
-            padding: EdgeInsets.all(10),
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Expanded(
-                    child: PageView(
-                  controller: _pageController,
-                  physics: BouncingScrollPhysics(),
-                  onPageChanged: (index) {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
-                  children: [
-                    ...pages.map((e) {
-                      return Image.asset(e);
-                    })
-                  ],
-                )),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [..._buildPageIndicator()],
-                )
-              ],
-            )));
+          child: WebView(
+            initialUrl: 'https://shimo.im/docs/PYwVXcgYDDgwCYCp/',
+          ),
+        ));
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //       appBar: AppBar(
+  //         elevation: 0,
+  //         backgroundColor: Color(CSColor.white),
+  //         title: Text('使用指南'),
+  //       ),
+  //       body: Container(
+  //           padding: EdgeInsets.all(10),
+  //           alignment: Alignment.center,
+  //           child: Column(
+  //             children: [
+  //               Expanded(
+  //                   child: PageView(
+  //                 controller: _pageController,
+  //                 physics: BouncingScrollPhysics(),
+  //                 onPageChanged: (index) {
+  //                   setState(() {
+  //                     selectedIndex = index;
+  //                   });
+  //                 },
+  //                 children: [
+  //                   ...pages.map((e) {
+  //                     return Image.asset(e);
+  //                   })
+  //                 ],
+  //               )),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.center,
+  //                 children: [..._buildPageIndicator()],
+  //               )
+  //             ],
+  //           )));
+  // }
 }

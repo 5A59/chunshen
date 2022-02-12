@@ -6,7 +6,7 @@
     <!-- You can insert your own image assets here -->
     <item>
         <bitmap
-            android:gravity="fill_horizontal|bottom|clip_vertical"
+            android:gravity="bottom|clip_vertical"
             android:src="@mipmap/launcher_bg" />
     </item>
 </layer-list>
