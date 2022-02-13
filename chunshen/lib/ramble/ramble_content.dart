@@ -96,6 +96,7 @@ class RambleContentState extends State<RambleContent> implements IMenuListener {
                 children: [
                   Text(
                     widget.bean?.tag?.content ?? '',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Color(CSColor.lightBlack),
                         fontSize: 30,

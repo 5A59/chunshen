@@ -11,8 +11,17 @@ import 'package:chunshen/user/login/index.dart';
 import 'package:chunshen/user/login/info/index.dart';
 import 'package:flutter/material.dart';
 import 'package:chunshen/main/index.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  if (Platform.isAndroid) {
+    SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, //设置为透明
+      statusBarBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.dark,
+    );
+    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+  }
   runApp(MyApp());
 }
 

@@ -77,7 +77,7 @@ class _GuideState extends State<GuidePage> {
         ),
         body: Container(
           child: WebView(
-            initialUrl: 'https://shimo.im/docs/PYwVXcgYDDgwCYCp/',
+            initialUrl: 'https://www.yuque.com/u21304031/fgpmte/xqkhgh',
           ),
         ));
   }
