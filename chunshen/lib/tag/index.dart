@@ -115,9 +115,14 @@ class TagWidgetState extends State<TagWidget> {
                         shrinkWrap: true,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (context, i) {
-                          return buildTagItem(list[i]);
+                          if (i < list.length) {
+                            return buildTagItem(list[i]);
+                          }
+                          return SizedBox(
+                            width: 30,
+                          );
                         },
-                        itemCount: list.length,
+                        itemCount: list.length + 1,
                       )),
                     if (list.length <= 0 && defaultText != null)
                       Expanded(

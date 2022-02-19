@@ -138,7 +138,7 @@ class _OperationBarState extends State<OperationBar> {
         showMessageDialog(context, '导入失败');
       }
     } else {
-      showMessageDialog(context, '导入失败');
+      showMessageDialog(context, '请选择文件导入～');
     }
   }
 
