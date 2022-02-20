@@ -15,7 +15,7 @@
       </v-col>
 
       <v-col>
-        <v-btn color="gray text-none" rounded min-width="200px">
+        <v-btn color="gray text-none" rounded min-width="200px" v-on:click="downloadAndroid">
           <v-icon left> mdi-android </v-icon>
           Android
         </v-btn>
@@ -87,7 +87,11 @@
 export default {
   name: "Main",
 
-  data: () => ({}),
+  data: () => ({
+    downloadAndroid() {
+      window.open("https://zylab.oss-cn-beijing.aliyuncs.com/chunshen/yezishuzhai.apk")
+    }
+  }),
 };
 </script>
 

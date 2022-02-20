@@ -1,0 +1,1 @@
+yarn build && mv dist ../ && cd ../ && rm -rf www && mv dist www
