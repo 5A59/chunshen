@@ -110,8 +110,7 @@ class TagWidgetState extends State<TagWidget> {
                   padding: EdgeInsets.only(left: 10, right: 10),
                   child: Stack(children: [
                     if (list.length > 0)
-                      Expanded(
-                          child: ListView.builder(
+                      ListView.builder(
                         shrinkWrap: true,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (context, i) {
@@ -119,17 +118,16 @@ class TagWidgetState extends State<TagWidget> {
                             return buildTagItem(list[i]);
                           }
                           return SizedBox(
-                            width: 30,
+                            width: 80,
                           );
                         },
                         itemCount: list.length + 1,
-                      )),
+                      ),
                     if (list.length <= 0 && defaultText != null)
-                      Expanded(
-                          child: Text(
+                      Text(
                         defaultText,
                         style: TextStyle(color: Color(CSColor.gray5)),
-                      )),
+                      ),
                     SizedBox(
                       width: 10,
                     ),

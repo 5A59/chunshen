@@ -1,4 +1,4 @@
-package com.example.chunshen;
+package com.yezi.cs;
 
 import android.content.ContentResolver
 import android.content.ContentValues
