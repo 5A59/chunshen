@@ -15,6 +15,45 @@ import 'package:crypto/crypto.dart';
 
 const MethodChannel _channel = const MethodChannel('ext_storage');
 
+class LoadingDialog extends Dialog {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: new Material(
+        ///背景透明
+        color: Colors.transparent,
+
+        ///保证控件居中效果
+        child: new Center(
+          ///弹框大小
+          child: new SizedBox(
+            width: 120.0,
+            height: 120.0,
+            child: new Container(
+              ///弹框背景和圆角
+              decoration: ShapeDecoration(
+                color: Color(0xffffffff),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8.0),
+                  ),
+                ),
+              ),
+              child: new Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  new CircularProgressIndicator(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 openPage(BuildContext context, page, {params}) {
   return Navigator.pushNamed(context, page, arguments: params);
 }
@@ -36,18 +75,11 @@ bool isListEmpty(Iterable? list) {
 }
 
 showLoading(BuildContext context) {
-  AlertDialog alert = AlertDialog(
-    content: new Row(
-      children: [
-        CircularProgressIndicator(),
-      ],
-    ),
-  );
   showDialog(
     barrierDismissible: false,
     context: context,
     builder: (BuildContext context) {
-      return alert;
+      return LoadingDialog();
     },
   );
 }
@@ -104,6 +136,11 @@ showNorlmalDialog(BuildContext context, String title, String content,
 
 toast(String msg) {
   Fluttertoast.showToast(msg: msg);
+}
+
+curDate() {
+  DateFormat dateFormat = DateFormat('yyyy-MM-dd-hh-mm');
+  return dateFormat.format(new DateTime.now());
 }
 
 formatTime(int? time) {

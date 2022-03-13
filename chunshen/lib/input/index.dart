@@ -230,7 +230,10 @@ class _TextInputState extends State<TextInputPage> {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Color(CSColor.white),
-          title: Text('添加书摘'),
+          title: Text(
+            '添加书摘',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           actions: [
             TextButton(
                 onPressed: () {},
@@ -245,7 +248,9 @@ class _TextInputState extends State<TextInputPage> {
                   child: Text(
                     update ? '更新' : '提交',
                     style: TextStyle(
-                        fontSize: 16, color: Color(CSColor.lightBlack)),
+                        fontSize: 16,
+                        color: Color(CSColor.lightBlack),
+                        fontWeight: FontWeight.bold),
                   ),
                 ))
           ],

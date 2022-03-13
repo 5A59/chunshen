@@ -146,7 +146,10 @@ class _ManageTagState extends State<ManageTagPage> {
         appBar: AppBar(
             elevation: 0,
             backgroundColor: Color(CSColor.white),
-            title: Text('管理书籍')),
+            title: Text(
+              '管理书籍',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            )),
         body: WillPopScope(
             onWillPop: () async {
               finishPage(context, params: changed);

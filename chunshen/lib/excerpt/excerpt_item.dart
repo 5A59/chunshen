@@ -116,7 +116,7 @@ class _ExcerptCommentItemState extends State<ExcerptCommentItem> {
               },
               itemCount: widget.comment?.length ?? 0,
             ),
-            decoration: BoxDecoration(color: Color(CSColor.gray)))
+            decoration: BoxDecoration(color: Color(CSColor.gray6)))
         : Container();
   }
 }

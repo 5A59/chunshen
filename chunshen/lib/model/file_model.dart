@@ -37,9 +37,13 @@ class TagFileModel extends TagModel {
   }
 
   static addTag(TagBean tag) async {
-    await FileServer().addTag(tag);
-    CSResponse resp = CSResponse.normal();
-    return resp;
+    int status = await FileServer().addTag(tag);
+    if (status == 0) {
+      return CSResponse.normal();
+    } else if (status == 1) {
+      return CSResponse.error(error: '书籍已存在~');
+    }
+    return CSResponse.normal();
   }
 
   static updateTag(TagBean newTag, TagBean oldTag) async {

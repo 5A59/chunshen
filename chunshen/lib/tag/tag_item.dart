@@ -31,11 +31,12 @@ class _TagItemState extends State<TagItem> {
             ? Container(
                 padding: EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                    border: Border.all(color: Color(color), width: 0.5),
+                    border: Border.all(color: Color(CSColor.gray3), width: 0.5),
                     borderRadius: BorderRadius.circular(3)),
                 child: Text(
                   widget.tag?.content ?? '',
-                  style: TextStyle(color: Color(color)),
+                  style: TextStyle(
+                      color: Color(color), fontWeight: FontWeight.bold),
                 ))
             : Container(
                 padding: EdgeInsets.all(4),
@@ -45,7 +46,8 @@ class _TagItemState extends State<TagItem> {
                     borderRadius: BorderRadius.circular(3)),
                 child: Text(
                   widget.tag?.content ?? '',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
                 )));
   }
 }

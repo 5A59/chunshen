@@ -76,6 +76,9 @@ class _AddTagState extends State<AddTagPage> {
       toast('添加书籍成功');
       callback?.call(true);
       finishPage(context, params: true);
+    } else if (resp.status == 1) {
+      toast(resp.msg);
+      callback?.call(true);
     } else {
       toast('添加书籍失败，请稍后重试～');
       callback?.call(true);
@@ -143,7 +146,7 @@ class _AddTagState extends State<AddTagPage> {
                   onPressed: _addTagBySelf,
                   child: Text('手动添加'))
             ],
-            title: Text('添加书籍')),
+            title: Text('添加书籍', style: TextStyle(fontWeight: FontWeight.bold))),
         body: Container(
           padding: EdgeInsets.all(10),
           child: Column(

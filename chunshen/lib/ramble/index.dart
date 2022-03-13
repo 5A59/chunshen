@@ -9,13 +9,16 @@ import 'package:flutter/material.dart';
 
 class RamblePage extends StatefulWidget with IOperationListener {
   _RambleState state = _RambleState();
+  bool stateInited = false;
 
   @override
   _RambleState createState() => state;
 
   @override
   onExcerptUploadFinished() {
-    state.getRambleData();
+    if (stateInited) {
+      state.getRambleData();
+    }
   }
 }
 
@@ -79,6 +82,7 @@ class _RambleState extends State<RamblePage>
       }
     });
     getRambleData();
+    widget.stateInited = true;
   }
 
   ExcerptBean? getExcerpt(ExcerptBean bean) {

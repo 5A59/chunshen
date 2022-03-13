@@ -99,14 +99,18 @@ class RambleContentState extends State<RambleContent> implements IMenuListener {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Color(CSColor.lightBlack),
-                        fontSize: 30,
+                        fontSize: 23,
                         fontWeight: FontWeight.bold),
                   ),
                   space,
-                  Text(
-                    bean?.excerptContent?.content ?? '',
-                    style: TextStyle(fontSize: 16, height: 2),
-                  ),
+                  GestureDetector(
+                      onLongPress: () {
+                        copyToClipboard(bean?.excerptContent?.content);
+                      },
+                      child: Text(
+                        bean?.excerptContent?.content ?? '',
+                        style: TextStyle(fontSize: 16, height: 2),
+                      )),
                   space,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,

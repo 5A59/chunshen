@@ -73,11 +73,12 @@ class _GuideState extends State<GuidePage> {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Color(CSColor.white),
-          title: Text('使用指南'),
+          title: Text('使用指南', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         body: Container(
           child: WebView(
-            initialUrl: 'https://www.yuque.com/u21304031/fgpmte/xqkhgh',
+            initialUrl: 'https://www.yuque.com/u21304031/yezishuzhai/xqkhgh',
+            javascriptMode: JavascriptMode.unrestricted,
           ),
         ));
   }

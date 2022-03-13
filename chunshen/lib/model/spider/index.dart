@@ -1,7 +1,6 @@
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/net/index.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 
 class DoubanSpider {
   List<TagBean> filterBooks(content) {
@@ -16,7 +15,6 @@ class DoubanSpider {
         // print(element.group(1) ?? 'null' + '  ' + (element.group(2) ?? 'null'));
       }
     });
-    debugPrint('debug: ' + list.length.toString());
     return list;
   }
 
@@ -24,7 +22,10 @@ class DoubanSpider {
     String path = 'https://www.douban.com/search';
     Response response = await rawGet(path, query: {'q': book});
     String res = response.data.toString();
-    debugPrint('debug: ' + res);
-    return filterBooks(res);
+    List<TagBean> list = [];
+    try {
+      list = filterBooks(res);
+    } on Exception catch (e) {}
+    return list;
   }
 }

@@ -53,15 +53,19 @@ class FileServer {
     checkFile.createSync();
     String md5Str = md5.convert(File(contentDir).readAsBytesSync()).toString();
     checkFile.writeAsStringSync(md5Str);
-    String targetFile = '$targetDir/chunshen.zip';
+    String date = curDate();
+    String targetFile = Platform.isAndroid
+        ? '$targetDir/yezishuzhai-$date.zip'
+        : '$dir/yezishuzhai-$date.zip';
     res = await ZipUtils.zip(target, targetFile);
     if (Platform.isAndroid) {
       String finalFile =
-          await writeToDownload(targetFile, "chunshen.zip", ".zip");
+          await writeToDownload(targetFile, 'yezishuzhai-$date.zip', ".zip");
       File(targetFile).deleteSync(recursive: true);
       File(target).deleteSync(recursive: true);
       return finalFile;
     } else {
+      File(target).deleteSync(recursive: true);
       return targetFile;
     }
   }
@@ -316,13 +320,24 @@ class FileServer {
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
-    tagFiles[path] = [];
     bean.id = path;
     String tags = await File(tagListPath).readAsString();
     TagListBean beanList = TagListBean.fromJson(csJsonDecode(tags));
-    beanList.list.add(bean);
-    this.tags[path] = bean;
-    await File(tagListPath).writeAsString(jsonEncode(beanList.toJson()));
+    bool added = false;
+    beanList.list.forEach((element) {
+      // 检查是否已经存在
+      if (element.id == bean.id) {
+        added = true;
+      }
+    });
+    if (!added) {
+      tagFiles[path] = [];
+      beanList.list.add(bean);
+      this.tags[path] = bean;
+      await File(tagListPath).writeAsString(jsonEncode(beanList.toJson()));
+      return 0;
+    }
+    return 1;
   }
 
   updateTag(TagBean newTag, TagBean oldTag) async {

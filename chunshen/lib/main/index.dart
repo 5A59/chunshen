@@ -23,16 +23,16 @@ class MainPage extends StatefulWidget {
 class _MainState extends State<MainPage> {
   ExcerptPage excerptPage = ExcerptPage();
   RamblePage ramblePage = RamblePage();
-  bool inited = false;
+  bool inited = true;
 
   @override
   void initState() {
-    _login();
-    initNet().then((value) {
-      setState(() {
-        inited = true;
-      });
-    });
+    // _login();
+    // initNet().then((value) {
+    //   setState(() {
+    //     inited = true;
+    //   });
+    // });
     super.initState();
   }
 
@@ -65,13 +65,13 @@ class _MainState extends State<MainPage> {
                       padding: EdgeInsets.only(top: 10, bottom: 5),
                       child: Text('书摘',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 5),
                       child: Text('漫步',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ],
                   indicatorSize: TabBarIndicatorSize.label,
@@ -84,9 +84,6 @@ class _MainState extends State<MainPage> {
                 ),
                 Expanded(
                     child: TabBarView(children: [excerptPage, ramblePage])),
-                Divider(
-                  height: 1,
-                ),
                 OperationBar(
                   [excerptPage, ramblePage],
                 )

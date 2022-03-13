@@ -114,10 +114,11 @@ class _ExcerptState extends State<ExcerptPage>
   }
 
   _onExcerptDelete(int i) {
+    ExcerptBean bean = list[i];
     setState(() {
       list.removeAt(i);
     });
-    deleteExcerpt(list[i]);
+    deleteExcerpt(bean);
   }
 
   @override

@@ -174,8 +174,18 @@ class _OperationBarState extends State<OperationBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: 50,
-        color: Color(CSColor.white),
+        height: 55,
+        decoration: BoxDecoration(
+          color: Colors.white, // 底色
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 3, //阴影范围
+              spreadRadius: 0.01, //阴影浓度
+              offset: Offset(0, -3),
+              color: Colors.grey.withOpacity(0.1), //阴影颜色
+            ),
+          ],
+        ),
         child: Container(
             padding: EdgeInsets.only(left: 20, right: 20),
             child: Row(
@@ -189,8 +199,8 @@ class _OperationBarState extends State<OperationBar> {
                         onTap: _openTextInput,
                         child: Container(
                           decoration: BoxDecoration(
-                              border: Border.all(
-                                  width: 0.5, color: Color(CSColor.gray1))),
+                              color: Color(CSColor.gray),
+                              borderRadius: BorderRadius.circular(5)),
                           height: 40,
                           alignment: Alignment.center,
                           child: Text(

@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "副本_副本_副本_副本_副本_未命名_自定义px_2022-03-06+22_46_09.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

@@ -10,5 +10,6 @@ class CSColor {
   static const int gray3 = 0x77777777;
   static const int gray4 = 0xFF333333;
   static const int gray5 = 0x88777777;
+  static const int gray6 = 0xFFfafafa;
   static const int yellow = 0xFFF49405;
 }
