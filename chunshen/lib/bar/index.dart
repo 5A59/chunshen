@@ -65,7 +65,7 @@ class _OperationBarState extends State<OperationBar> {
     }
   }
 
-  _ocr(XFile? image) async {
+  _ocr(PickedFile? image) async {
     String res = await ocr(context, image);
     if (isEmpty(res)) {
       return;
@@ -82,13 +82,15 @@ class _OperationBarState extends State<OperationBar> {
 
   _openCamera() async {
     ImagePicker _picker = ImagePicker();
-    XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    PickedFile? image = await _picker.getImage(source: ImageSource.camera);
+    // XFile? image = await _picker.pickImage(source: ImageSource.camera);
     await _ocr(image);
   }
 
   _openImage() async {
     ImagePicker _picker = ImagePicker();
-    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    PickedFile? image = await _picker.getImage(source: ImageSource.gallery);
+    // XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     await _ocr(image);
   }
 

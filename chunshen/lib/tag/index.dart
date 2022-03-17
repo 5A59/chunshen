@@ -199,26 +199,6 @@ class TagWidgetState extends State<TagWidget> {
                     }).toList(),
                   ),
                 ),
-                // Positioned(
-                //     child: SizedBox(
-                //   height: 30,
-                //   child: Row(
-                //     children: [
-                //       Spacer(),
-                //       Container(
-                //         color: Color(CSColor.white),
-                //         child: SizedBox(
-                //           width: 50,
-                //             child: IconButton(
-                //                 alignment: Alignment.topRight,
-                //                 onPressed: () {
-                //                   dialogUp();
-                //                 },
-                //                 icon: Icon(Icons.arrow_drop_up))),
-                //       )
-                //     ],
-                //   ),
-                // )),
               ],
             ),
           )),

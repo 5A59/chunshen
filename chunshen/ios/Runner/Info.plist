@@ -15,11 +15,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
@@ -31,12 +31,30 @@
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>no use</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>no use</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>no use</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>no use</string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires access to the camera.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>no use</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>no use</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>no use</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app does not require access to the microphone.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>no use</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app requires access to the photo library.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>no use</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -60,5 +78,7 @@
 	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<string>YES</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

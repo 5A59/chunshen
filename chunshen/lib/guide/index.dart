@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chunshen/base/widget/cs_scaffold.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -69,13 +70,9 @@ class _GuideState extends State<GuidePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Color(CSColor.white),
-          title: Text('使用指南', style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
-        body: Container(
+    return CSScaffold(
+        '使用指南',
+        Container(
           child: WebView(
             initialUrl: 'https://www.yuque.com/u21304031/yezishuzhai/xqkhgh',
             javascriptMode: JavascriptMode.unrestricted,

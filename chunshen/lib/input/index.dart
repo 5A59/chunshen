@@ -1,3 +1,4 @@
+import 'package:chunshen/base/widget/cs_scaffold.dart';
 import 'package:chunshen/base/widget/image/big_image.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/global/index.dart';
@@ -144,7 +145,8 @@ class _TextInputState extends State<TextInputPage> {
   }
 
   addImage() async {
-    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    PickedFile? image = await _picker.getImage(source: ImageSource.gallery);
+    // XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
         imageList.add(image.path);
@@ -163,7 +165,7 @@ class _TextInputState extends State<TextInputPage> {
         ));
   }
 
-  _ocr(XFile? image) async {
+  _ocr(PickedFile? image) async {
     String res = await ocr(context, image);
     if (isEmpty(content)) {
       content = res;
@@ -178,13 +180,15 @@ class _TextInputState extends State<TextInputPage> {
 
   _openCamera() async {
     ImagePicker _picker = ImagePicker();
-    XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    PickedFile? image = await _picker.getImage(source: ImageSource.camera);
+    // XFile? image = await _picker.pickImage(source: ImageSource.camera);
     await _ocr(image);
   }
 
   _openImage() async {
     ImagePicker _picker = ImagePicker();
-    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    PickedFile? image = await _picker.getImage(source: ImageSource.gallery);
+    // XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     await _ocr(image);
   }
 
@@ -226,36 +230,9 @@ class _TextInputState extends State<TextInputPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Color(CSColor.white),
-          title: Text(
-            '添加书摘',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          actions: [
-            TextButton(
-                onPressed: () {},
-                child: TextButton(
-                  style: ButtonStyle(
-                    foregroundColor:
-                        MaterialStateProperty.all<Color>(Colors.blue),
-                  ),
-                  onPressed: () {
-                    uploadExcerpt(context);
-                  },
-                  child: Text(
-                    update ? '更新' : '提交',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Color(CSColor.lightBlack),
-                        fontWeight: FontWeight.bold),
-                  ),
-                ))
-          ],
-        ),
-        body: Container(
+    return CSScaffold(
+        '添加书摘',
+        Container(
             child: Stack(children: [
           SingleChildScrollView(
               child: Container(
@@ -306,6 +283,26 @@ class _TextInputState extends State<TextInputPage> {
               defaultText: '   暂无书籍，点击右侧“加号”添加',
             ),
           )
-        ])));
+        ])),
+        [
+          TextButton(
+              onPressed: () {},
+              child: TextButton(
+                style: ButtonStyle(
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.blue),
+                ),
+                onPressed: () {
+                  uploadExcerpt(context);
+                },
+                child: Text(
+                  update ? '更新' : '提交',
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Color(CSColor.lightBlack),
+                      fontWeight: FontWeight.bold),
+                ),
+              ))
+        ]);
   }
 }

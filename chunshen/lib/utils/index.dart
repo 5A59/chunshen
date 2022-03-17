@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chunshen/base/ocr/index.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
+import 'package:chunshen/model/fileserver/index.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
@@ -143,6 +144,10 @@ curDate() {
   return dateFormat.format(new DateTime.now());
 }
 
+curTime() {
+  return new DateTime.now().millisecondsSinceEpoch;
+}
+
 formatTime(int? time) {
   DateFormat dateFormat = DateFormat('yyyy-MM-dd hh:mm');
   if (time != null) {
@@ -196,7 +201,7 @@ csJsonDecode(String content) {
   return jsonDecode(content);
 }
 
-Future<String> ocr(BuildContext context, XFile? image) async {
+Future<String> ocr(BuildContext context, PickedFile? image) async {
   String res = "";
   if (image != null) {
     File? file = await ImageCropper.cropImage(
@@ -228,9 +233,9 @@ Future<String> ocr(BuildContext context, XFile? image) async {
 
 _addImage(Function? callback) async {
   ImagePicker _picker = ImagePicker();
-  XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  PickedFile? image = await _picker.getImage(source: ImageSource.gallery);
   if (image != null) {
-    callback?.call(image.path);
+    callback?.call(image);
   }
 }
 
@@ -259,6 +264,7 @@ void addOrUpdateTag(BuildContext context, bool update,
       builder: (BuildContext context) {
         String head = oldTag?.head ?? '';
         String? content = oldTag?.content;
+        PickedFile? headFile;
         return StatefulBuilder(
           builder: (context, setState) {
             AlertDialog dialog = AlertDialog(
@@ -266,9 +272,10 @@ void addOrUpdateTag(BuildContext context, bool update,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildImage(head, (path) {
+                  _buildImage(head, (imageFile) {
                     setState(() {
-                      head = path;
+                      head = imageFile.path;
+                      headFile = imageFile;
                     });
                   }),
                   TextField(
@@ -288,8 +295,9 @@ void addOrUpdateTag(BuildContext context, bool update,
                   TextButton(
                       onPressed: () {
                         if (!isEmpty(content)) {
-                          bool? res = callback
-                              ?.call(TagBean('', head, content, '', true));
+                          TagBean bean = TagBean('', head, content, '', true);
+                          bean.headFile = headFile;
+                          bool? res = callback?.call(bean);
                           if (res == true) {
                             hideDialog(context);
                           }

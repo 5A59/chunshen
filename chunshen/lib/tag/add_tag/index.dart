@@ -1,3 +1,4 @@
+import 'package:chunshen/base/widget/cs_scaffold.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
@@ -134,28 +135,24 @@ class _AddTagState extends State<AddTagPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Color(CSColor.white),
-            actions: [
-              TextButton(
-                  style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all(Color(CSColor.black))),
-                  onPressed: _addTagBySelf,
-                  child: Text('手动添加'))
-            ],
-            title: Text('添加书籍', style: TextStyle(fontWeight: FontWeight.bold))),
-        body: Container(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            children: [
-              _buildSearchBar(),
-              SizedBox(height: 10),
-              _buildSearchResult()
-            ],
-          ),
-        ));
+    return CSScaffold(
+        '添加书籍',
+        Container(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              children: [
+                _buildSearchBar(),
+                SizedBox(height: 10),
+                _buildSearchResult()
+              ],
+            )),
+        [
+          TextButton(
+              style: ButtonStyle(
+                  foregroundColor:
+                      MaterialStateProperty.all(Color(CSColor.black))),
+              onPressed: _addTagBySelf,
+              child: Text('手动添加'))
+        ]);
   }
 }

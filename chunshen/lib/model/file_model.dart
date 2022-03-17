@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:chunshen/model/fileserver/index.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/spider/index.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/net/index.dart';
 import 'package:chunshen/utils/index.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'excerpt.dart';
 
@@ -37,6 +40,11 @@ class TagFileModel extends TagModel {
   }
 
   static addTag(TagBean tag) async {
+    if (tag.headFile != null) {
+      tag.head = FileServer().getImagePath();
+      File file = File(tag.head!);
+      file.writeAsBytesSync(await tag.headFile!.readAsBytes());
+    }
     int status = await FileServer().addTag(tag);
     if (status == 0) {
       return CSResponse.normal();
@@ -47,6 +55,11 @@ class TagFileModel extends TagModel {
   }
 
   static updateTag(TagBean newTag, TagBean oldTag) async {
+    if (newTag.headFile != null) {
+      newTag.head = FileServer().getImagePath();
+      File file = File(newTag.head!);
+      file.writeAsBytesSync(await newTag.headFile!.readAsBytes());
+    }
     await FileServer().updateTag(newTag, oldTag);
     CSResponse resp = CSResponse.normal();
     return resp;

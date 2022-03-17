@@ -28,26 +28,39 @@ class _TagItemState extends State<TagItem> {
           });
         },
         child: !selected
-            ? Container(
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                    border: Border.all(color: Color(CSColor.gray3), width: 0.5),
-                    borderRadius: BorderRadius.circular(3)),
-                child: Text(
-                  widget.tag?.content ?? '',
-                  style: TextStyle(
-                      color: Color(color), fontWeight: FontWeight.bold),
-                ))
-            : Container(
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                    color: Color(color),
-                    border: Border.all(color: Color(color), width: 0.5),
-                    borderRadius: BorderRadius.circular(3)),
-                child: Text(
-                  widget.tag?.content ?? '',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                )));
+            ? SizedBox(
+                height: 30,
+                child: FittedBox(
+                    fit: BoxFit.fitHeight,
+                    child: Container(
+                        padding: EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Color(CSColor.gray3), width: 0.5),
+                            borderRadius: BorderRadius.circular(3)),
+                        child: Text(
+                          widget.tag?.content ?? '',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: Color(color),
+                              fontWeight: FontWeight.bold),
+                        ))))
+            : SizedBox(
+                height: 30,
+                child: FittedBox(
+                    fit: BoxFit.fitHeight,
+                    child: Container(
+                        padding: EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                            color: Color(color),
+                            border: Border.all(color: Color(color), width: 0.5),
+                            borderRadius: BorderRadius.circular(3)),
+                        child: Text(
+                          widget.tag?.content ?? '',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        )))));
   }
 }

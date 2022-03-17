@@ -17,6 +17,7 @@ class FileServer {
   String tagListDir = 'chunshen/fileserver/';
   String relateTagListPath = 'chunshen/fileserver/tagList';
   String tagListPath = 'chunshen/fileserver/tagList';
+  String imagePath = 'chunshen/fileserver/images';
   String serverDir = '';
 
   Map<String, List<String>> tagFiles = {};
@@ -37,6 +38,16 @@ class FileServer {
         ? (await getExternalStorageDirectory())?.path
         : (await getApplicationDocumentsDirectory()).path;
     return dir;
+  }
+
+  String getImagePath() {
+    var path = '$serverDir/$imagePath';
+    Directory file = Directory(path);
+    if (!file.existsSync()) {
+      file.createSync(recursive: true);
+    }
+    var time = curTime();
+    return '$path/$time';
   }
 
   exportExcerpts() async {
@@ -388,6 +399,13 @@ class FileServer {
     }
     TagListBean beanList = TagListBean.fromJson(csJsonDecode(tags));
     beanList.list = beanList.list.reversed.toList();
+    // TagBean? tmp;
+    // beanList.list.forEach((element) {
+    //   if (element.content == '史蒂夫·乔布斯传（修订版）') {
+    //     tmp = element;
+    //   }
+    // });
+    // beanList.list.remove(tmp);
     return beanList;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:chunshen/base/widget/cs_scaffold.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/config.dart';
 import 'package:chunshen/model/index.dart';
@@ -6,6 +7,7 @@ import 'package:chunshen/net/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ManageTagPage extends StatefulWidget {
   @override
@@ -142,15 +144,9 @@ class _ManageTagState extends State<ManageTagPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Color(CSColor.white),
-            title: Text(
-              '管理书籍',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            )),
-        body: WillPopScope(
+    return CSScaffold(
+        '管理书籍',
+        WillPopScope(
             onWillPop: () async {
               finishPage(context, params: changed);
               return false;

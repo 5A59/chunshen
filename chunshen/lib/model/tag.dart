@@ -1,4 +1,5 @@
 import 'package:chunshen/utils/index.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TagBean {
   String? id;
@@ -6,6 +7,7 @@ class TagBean {
   String? content;
   // 客户端使用
   String? publish;
+  PickedFile? headFile;
   bool self = false;
 
   TagBean(this.id, this.head, this.content, this.publish, [this.self = false]);
