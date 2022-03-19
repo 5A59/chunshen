@@ -1950,7 +1950,7 @@ pre[class*="language-"] {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   background-color: #fff;
-  padding-top: .64rem;
+  padding-top: .10rem;
   height: 100%;
 }
 
