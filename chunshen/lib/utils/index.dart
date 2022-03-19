@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:chunshen/base/ocr/index.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
-import 'package:chunshen/model/fileserver/index.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:flutter/material.dart';
@@ -239,9 +238,10 @@ _addImage(Function? callback) async {
   }
 }
 
-Widget _buildImage(String head, Function? callback) {
+Widget _buildImage(BuildContext context, String head, Function? callback) {
   return GestureDetector(
       onTap: () {
+        hideKeyboard(context);
         _addImage(callback);
       },
       child: Column(
@@ -272,7 +272,7 @@ void addOrUpdateTag(BuildContext context, bool update,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildImage(head, (imageFile) {
+                  _buildImage(context, head, (imageFile) {
                     setState(() {
                       head = imageFile.path;
                       headFile = imageFile;
@@ -327,4 +327,8 @@ Future<String> getExternalStoragePublicDirectory(String type) async {
 Future<String> writeToDownload(String path, String name, String type) async {
   return await _channel.invokeMethod(
       'writeToDownload', {'path': path, "name": name, "type": type});
+}
+
+void hideKeyboard(BuildContext context) {
+  FocusScope.of(context).requestFocus(FocusNode());
 }

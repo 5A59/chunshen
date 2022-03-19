@@ -216,7 +216,8 @@ class TagWidgetState extends State<TagWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: EdgeInsets.only(top: 10),
+        decoration: const BoxDecoration(color: Colors.white),
+        padding: EdgeInsets.only(top: 10),
         child: Container(
             child: !down ? buildTagList(widget.defaultText) : buildTagPanel()));
   }

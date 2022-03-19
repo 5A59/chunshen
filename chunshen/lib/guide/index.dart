@@ -73,12 +73,22 @@ class _GuideState extends State<GuidePage> {
     return CSScaffold(
         '使用指南',
         Container(
-          child: WebView(
-            initialUrl: 'https://www.yuque.com/u21304031/yezishuzhai/xqkhgh',
-            javascriptMode: JavascriptMode.unrestricted,
-          ),
+          child: Image.network(
+              "https://zylab.oss-cn-beijing.aliyuncs.com/chunshen/guide.jpg"),
         ));
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return CSScaffold(
+  //       '使用指南',
+  //       Container(
+  //         child: WebView(
+  //           initialUrl: 'https://www.yuque.com/u21304031/yezishuzhai/xqkhgh',
+  //           javascriptMode: JavascriptMode.unrestricted,
+  //         ),
+  //       ));
+  // }
 
   // @override
   // Widget build(BuildContext context) {

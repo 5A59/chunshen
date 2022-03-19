@@ -32,6 +32,7 @@ class _AddTagState extends State<AddTagPage> {
     showLoading(context);
     List<TagBean> tmp = await TagModel.search(content!);
     hideLoading(context);
+    FocusScope.of(context).requestFocus(FocusNode());
     setState(() {
       result = tmp;
     });
@@ -118,11 +119,14 @@ class _AddTagState extends State<AddTagPage> {
 
   Widget _buildSearchResult() {
     return Expanded(
-        child: ListView.builder(
-      itemBuilder: (context, i) {
-        return _buildResultItem(result[i]);
-      },
-      itemCount: result.length,
+        child: GestureDetector(
+      child: ListView.builder(
+        itemBuilder: (context, i) {
+          return _buildResultItem(result[i]);
+        },
+        itemCount: result.length,
+      ),
+      onTap: () => hideKeyboard(context),
     ));
   }
 

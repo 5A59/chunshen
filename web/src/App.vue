@@ -23,7 +23,7 @@
       <v-spacer></v-spacer>
 
       <v-btn
-        href="https://www.yuque.com/u21304031/fgpmte/xqkhgh"
+        href="guide.html"
         target="_blank"
         text
       >
@@ -32,8 +32,8 @@
     </v-app-bar>
 
     <v-main>
-      <Main v-if="!isMobile()"/>
-      <main-mobile v-if="isMobile()"/>
+      <Main v-if="!isMobile()" />
+      <main-mobile v-if="isMobile()" />
     </v-main>
   </v-app>
 </template>
@@ -57,6 +57,10 @@ export default {
   methods: {
     isMobile() {
       return isMobile(this);
+    },
+    openGuide() {
+      const newsUrl = this.$router.resolve('/guide');
+      window.open(newsUrl.href);
     },
   },
 };
