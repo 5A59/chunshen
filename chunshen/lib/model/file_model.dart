@@ -42,7 +42,7 @@ class TagFileModel extends TagModel {
   static addTag(TagBean tag) async {
     if (tag.headFile != null) {
       tag.head = FileServer().getImagePath();
-      File file = File(tag.head!);
+      File file = File(FileServer().getFullImagePath(tag.head!));
       file.writeAsBytesSync(await tag.headFile!.readAsBytes());
     }
     int status = await FileServer().addTag(tag);
@@ -57,7 +57,7 @@ class TagFileModel extends TagModel {
   static updateTag(TagBean newTag, TagBean oldTag) async {
     if (newTag.headFile != null) {
       newTag.head = FileServer().getImagePath();
-      File file = File(newTag.head!);
+      File file = File(FileServer().getFullImagePath(newTag.head!));
       file.writeAsBytesSync(await newTag.headFile!.readAsBytes());
     }
     await FileServer().updateTag(newTag, oldTag);

@@ -47,7 +47,12 @@ class FileServer {
       file.createSync(recursive: true);
     }
     var time = curTime();
-    return '$path/$time';
+    return 'csfileserver://$imagePath/$time';
+  }
+
+  String getFullImagePath(String imagePath) {
+    String tmp = imagePath.replaceFirst('csfileserver://', '');
+    return '$serverDir/$tmp';
   }
 
   exportExcerpts() async {

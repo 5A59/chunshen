@@ -4,6 +4,7 @@ abstract class IExcerptOperationListener {
   onExcerptAdd(ExcerptBean? bean) {}
   onExcerptDelete(ExcerptBean? bean) {}
   onExcerptUpdate(ExcerptBean? bean) {}
+  onTagAdd() {}
 }
 
 List<IExcerptOperationListener> _listeners = [];
@@ -27,5 +28,11 @@ void addexcerpt(ExcerptBean? excerpt) {
 void deleteExcerpt(ExcerptBean? excerpt) {
   _listeners.forEach((listener) {
     listener.onExcerptDelete(excerpt);
+  });
+}
+
+void addTag() {
+  _listeners.forEach((listener) {
+    listener.onTagAdd();
   });
 }

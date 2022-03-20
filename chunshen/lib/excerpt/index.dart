@@ -59,6 +59,11 @@ class _ExcerptState extends State<ExcerptPage>
   }
 
   @override
+  onTagAdd() {
+    getTagList();
+  }
+
+  @override
   onExcerptAdd(ExcerptBean? bean) {
     forceRefresh();
   }

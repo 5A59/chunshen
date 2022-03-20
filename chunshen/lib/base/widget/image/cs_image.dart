@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chunshen/model/fileserver/index.dart';
 import 'package:chunshen/style/index.dart';
 import 'package:chunshen/utils/index.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,14 @@ class CSImage {
           color: Color(CSColor.gray),
         ),
       );
+    } else if (url.startsWith('csfileserver://')) {
+      String tmp = FileServer().getFullImagePath(url);
+      return Image.file(
+        File(tmp),
+        fit: BoxFit.cover,
+        width: width,
+        height: height,
+      );
     } else if (File(url).existsSync()) {
       return Image.file(
         File(url),
@@ -54,6 +63,9 @@ class CSImage {
   static ImageProvider getImageProviderByUrl(String url) {
     if (url.startsWith('http')) {
       return CachedNetworkImageProvider(url);
+    } else if (url.startsWith('csfileserver://')) {
+      String tmp = FileServer().getFullImagePath(url);
+      return FileImage(File(tmp));
     } else if (File(url).existsSync()) {
       return FileImage(File(url));
     } else {

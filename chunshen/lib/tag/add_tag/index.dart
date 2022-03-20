@@ -1,5 +1,6 @@
 import 'package:chunshen/base/widget/cs_scaffold.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
+import 'package:chunshen/main/bus.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/net/index.dart';
@@ -77,6 +78,7 @@ class _AddTagState extends State<AddTagPage> {
     if (CSResponse.success(resp)) {
       toast('添加书籍成功');
       callback?.call(true);
+      addTag();
       finishPage(context, params: true);
     } else if (resp.status == 1) {
       toast(resp.msg);

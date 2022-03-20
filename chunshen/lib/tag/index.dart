@@ -176,7 +176,9 @@ class TagWidgetState extends State<TagWidget> {
                         ))
                   ])),
             ))
-        : Container();
+        : Container(
+            height: 0,
+          );
   }
 
   Widget buildTagPanel() {
@@ -208,7 +210,7 @@ class TagWidgetState extends State<TagWidget> {
                 dialogUp();
               },
               child: Container(
-                decoration: BoxDecoration(color: Color(CSColor.gray5)),
+                decoration: BoxDecoration(color: Color(CSColor.gray7)),
               )))
     ]);
   }

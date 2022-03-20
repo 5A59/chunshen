@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:chunshen/base/widget/cs_scaffold.dart';
 import 'package:chunshen/base/widget/image/big_image.dart';
 import 'package:chunshen/base/widget/image/cs_image.dart';
 import 'package:chunshen/global/index.dart';
 import 'package:chunshen/model/excerpt.dart';
+import 'package:chunshen/model/fileserver/index.dart';
 import 'package:chunshen/model/index.dart';
 import 'package:chunshen/model/tag.dart';
 import 'package:chunshen/net/index.dart';
@@ -34,6 +37,7 @@ class _TextInputState extends State<TextInputPage> {
   String? oldTagId = '';
   String? tagId = '';
   List<String> imageList = [];
+  Map<String, PickedFile> pickedFileMap = {};
   ImagePicker _picker = ImagePicker();
   // for update
   ExcerptBean? bean;
@@ -104,7 +108,17 @@ class _TextInputState extends State<TextInputPage> {
           return UploadOss.upload(e);
         }).toList());
       } else {
-        images.addAll(imageList);
+        await Future.forEach<String>(imageList, (element) async {
+          if (pickedFileMap.containsKey(element)) {
+            PickedFile pickedFile = pickedFileMap[element]!;
+            String path = FileServer().getImagePath();
+            File file = File(FileServer().getFullImagePath(path));
+            file.writeAsBytesSync(await pickedFile.readAsBytes());
+            images.add(path);
+          } else {
+            images.add(element);
+          }
+        });
       }
     }
     ExcerptUploadBean bean = (update && tagId == oldTagId)
@@ -148,6 +162,7 @@ class _TextInputState extends State<TextInputPage> {
     PickedFile? image = await _picker.getImage(source: ImageSource.gallery);
     // XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
+      pickedFileMap[image.path] = image;
       setState(() {
         imageList.add(image.path);
       });

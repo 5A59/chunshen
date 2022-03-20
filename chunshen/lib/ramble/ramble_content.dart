@@ -128,6 +128,10 @@ class RambleContentState extends State<RambleContent> implements IMenuListener {
                     ],
                   ),
                   showCommentInput ? moreMenu.buildCommentInput() : Container(),
+                  if (hasImage(bean))
+                    SizedBox(
+                      height: 10,
+                    ),
                   if (hasImage(bean)) buildImage(bean?.image ?? []),
                   space,
                   ExcerptCommentItem(bean, bean?.comment)
