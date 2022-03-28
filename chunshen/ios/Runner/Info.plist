@@ -42,7 +42,7 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>no use</string>
 	<key>NSCameraUsageDescription</key>
-	<string>This app requires access to the camera.</string>
+	<string>允许应用使用摄像头权限进行拍照，用于识别您需要记录的文字</string>
 	<key>NSContactsUsageDescription</key>
 	<string>no use</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -54,7 +54,7 @@
 	<key>NSMotionUsageDescription</key>
 	<string>no use</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app requires access to the photo library.</string>
+	<string>允许应用获取本地图片，用于识别您需要记录的文字</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>no use</string>
 	<key>UIFileSharingEnabled</key>

@@ -15,13 +15,13 @@
       </v-col>
 
       <v-col>
-        <v-btn color="gray text-none" rounded min-width="200px">
+        <v-btn color="gray text-none" rounded min-width="200px" v-on:click="downloadAndroid">
           <v-icon left> mdi-android </v-icon>
           Android
         </v-btn>
       </v-col>
       <v-col>
-        <v-btn color="gray text-none" rounded min-width="200px">
+        <v-btn color="gray text-none" rounded min-width="200px" v-on:click="downloadiOS">
           <v-icon left> mdi-apple </v-icon>
           iOS
         </v-btn>
@@ -88,6 +88,12 @@ export default {
     isMobile() {
       return isMobile(this);
     },
+    downloadAndroid() {
+      window.open("https://zylab.oss-cn-beijing.aliyuncs.com/chunshen/yezishuzhai.apk")
+    },
+    downloadiOS() {
+      window.open("https://apps.apple.com/cn/app/%E5%8F%B6%E5%AD%90%E4%B9%A6%E6%91%98/id1614131666")
+    }
   },
 };
 </script>
