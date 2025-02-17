@@ -9,9 +9,9 @@ class OcrUtils {
       "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?";
   String _baiduGrantType = "client_credentials";
   String _baiduClientId =
-      "oceMj6NqhLaRaM72Eo1Ce0bB"; //百度ocr api的 clientId,请自行申请
+      "oceMj6NqhLaRaM72Eo1Ce0bB"; //百度ocr api的 clientId,请自行申请，这个已经失效
   String _baiduClientSecret =
-      "fEDKrAA1oYZ0fFdmK4WPzzMbHtATHRNU"; //百度ocr api的 Secret
+      "fEDKrAA1oYZ0fFdmK4WPzzMbHtATHRNU"; //百度ocr api的 Secret，这个已经失效
 
   Future<String> ocr(File file) async {
     List<int> byteList = file.readAsBytesSync();
